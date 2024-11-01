@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { HashPassword } from "../utils/hashPassword";
 import { createToken } from "../utils/jwt";
-import prisma from "@repo/prisma";
+import prisma from "@repo/db";
 import {
   JwtPayload,
   SigninBody,

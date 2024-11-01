@@ -10,6 +10,6 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/api/v1", userRouter);
 
-app.listen(3000, () => {
+app.listen(3003, () => {
   console.log("working server");
 });
