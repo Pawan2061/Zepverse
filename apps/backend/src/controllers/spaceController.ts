@@ -62,3 +62,51 @@ export const deleteSpace = async (
     });
   }
 };
+
+export const getAllSpaces = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const spaces = await prisma.space.findMany();
+
+    if (!spaces) {
+      return res.status(404).json({
+        message: "no spaces found",
+      });
+    }
+    return res.status(200).json({
+      spaces: spaces,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      message: error,
+    });
+  }
+};
+
+export const getSpace = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { spaceId } = req.params;
+
+    if (!spaceId) {
+      return res.status(404).json({
+        message: "no credentials found",
+      });
+    }
+    const space = await prisma.space.findUnique({
+      where: {
+        id: spaceId,
+      },
+    });
+
+    if (!space) {
+      return res.status(404).json({
+        message: "no space found for such spaceId",
+      });
+    }
+    return res.status(200).json({
+      spaces: space,
+    });
+  } catch (error) {}
+};

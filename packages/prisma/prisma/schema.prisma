@@ -31,7 +31,7 @@ model Space {
 
 model spaceElements {
   id        String @id @unique @default(cuid())
-  elementId String
+  elementId String @unique
   spaceId   String
   x         Int
   y         Int
@@ -39,6 +39,7 @@ model spaceElements {
 
 model Element {
   id       String @id @unique @default(cuid())
+  name     String @default("unnamed")
   width    Int
   height   Int
   imageUrl String

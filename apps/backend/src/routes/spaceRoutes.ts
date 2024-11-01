@@ -1,6 +1,12 @@
 import express from "express";
-import { createSpace, deleteSpace } from "../controllers/spaceController";
 export const spaceRouter = express.Router();
-
+import {
+  createSpace,
+  deleteSpace,
+  getAllSpaces,
+  getSpace,
+} from "../controllers/spaceController";
 spaceRouter.post("/space", createSpace);
-spaceRouter.delete("/space/:spaceId", deleteSpace);
+spaceRouter.get("/space/:spaceId", getSpace);
+spaceRouter.get("/space/all", getAllSpaces);
+spaceRouter.delete("/space/spaceId", deleteSpace);
