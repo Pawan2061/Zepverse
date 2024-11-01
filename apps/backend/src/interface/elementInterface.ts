@@ -1,8 +1,8 @@
-export interface ElementRequestBody {
-  width: number;
-  name: string;
-  height: number;
-  imageUrl: string;
+export interface addElementRequestBody {
+  elementId: string;
+  spaceId: string;
+  x: number;
+  y: number;
 }
 
 export interface SpaceElementRequestBody {
