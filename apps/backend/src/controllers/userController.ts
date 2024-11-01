@@ -6,6 +6,7 @@ import {
   JwtPayload,
   SigninBody,
   SignupRequestBody,
+  UpdatePicRequest,
 } from "../interface/userInterface";
 import bcrypt, { hash } from "bcrypt";
 
@@ -28,6 +29,7 @@ export const Signup = async (
       data: {
         username: username,
         password: hashedPassword,
+        role: type,
       },
     });
     console.log("reached here");
@@ -71,6 +73,7 @@ export const Signin = async (
         message: "unmatched password",
       });
     }
+    console.log("cbecking is done");
 
     const payload: JwtPayload = {
       username: user.username,
@@ -78,9 +81,99 @@ export const Signin = async (
     };
 
     const token = await createToken(payload);
+    console.log(token, "is here guys");
 
     return res.status(200).json({ token: token });
   } catch (erorr) {
     return res.status(403).send("user couldnt be signed in");
+  }
+};
+export const UpdatePic = async (
+  req: Request<{}, {}, UpdatePicRequest>,
+  res: Response
+): Promise<any> => {
+  try {
+    const { avatarId } = req.body;
+    if (!avatarId) {
+      return res.status(404).json({
+        message: "insufficient credentials",
+      });
+    }
+
+    const avatar = await prisma.avatar.create({
+      data: {
+        id: avatarId,
+      },
+    });
+
+    return res.status(200).json({
+      message: `avatar ${avatarId} is created`,
+    });
+  } catch (error) {
+    return res.status(403).json({
+      error: error,
+    });
+  }
+};
+
+export const getAvatars = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const avatars = await prisma.avatar.findMany();
+    if (!avatars) {
+      return res.status(404).json({
+        message: "no avatars found",
+      });
+    }
+
+    res.status(200).json({
+      avatars: avatars,
+    });
+    return;
+  } catch (error) {
+    return res.status(403).send("user couldnt be signed in");
+  }
+};
+
+export const getBulkAvatars = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const idsParam: any = req.query.ids;
+
+    if (idsParam) {
+      const params = idsParam
+        .replace(/[\[\]"]/g, "")
+        .split(",")
+        .map((id: string) => id.trim());
+      console.log("_______");
+
+      console.log("_______");
+
+      console.log(idsParam, "new ids");
+
+      try {
+        const userMetadata = await prisma.avatar.findMany({
+          where: {
+            id: { in: params },
+          },
+          select: {
+            id: true,
+            imageUrl: true,
+          },
+        });
+        return res.status(200).json({ avatars: userMetadata });
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      return res
+        .status(400)
+        .json({ success: false, message: "No IDs provided." });
+    }
+  } catch (error) {
+    return res.status(403).json({
+      message: "couldnt find the associated avatars",
+    });
   }
 };

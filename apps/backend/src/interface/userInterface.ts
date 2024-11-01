@@ -22,3 +22,7 @@ export interface JwtPayload {
   username: string;
   password: string;
 }
+
+export interface UpdatePicRequest {
+  avatarId: string;
+}
