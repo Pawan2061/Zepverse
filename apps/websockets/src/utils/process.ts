@@ -9,5 +9,4 @@ export async function handleMove(payload: any) {
     type: "moving",
     message: "moving in the server",
   };
-  console.log(payload);
 }
