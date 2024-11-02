@@ -1,1 +1,2 @@
 1.link the imageurl with the url
+2.check every controller whether the req.user is present 

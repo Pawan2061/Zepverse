@@ -41,8 +41,10 @@ export const verifyToken = async (
         return;
       }
       console.log("authenticated");
+      console.log(req.user);
 
       req.user = decodedToken;
+
       next();
     }
   );

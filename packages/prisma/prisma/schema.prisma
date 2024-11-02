@@ -19,51 +19,65 @@ model User {
   password String  @unique
   avatarId String?
   role     Role
+  spaces   Space[]
+  avatar   Avatar? @relation(fields: [avatarId], references: [id])
 }
 
 model Space {
-  id        String  @id @unique @default(cuid())
+  id        String          @id @unique @default(cuid())
   name      String
   width     Int
   height    Int?
   thumbnail String?
+  User      User?           @relation(fields: [userId], references: [id])
+  userId    String?
+  elements  spaceElements[]
 }
 
 model spaceElements {
-  id        String @id @unique @default(cuid())
-  elementId String @unique
+  id        String  @id @unique @default(cuid())
+  elementId String  @unique
   spaceId   String
   x         Int
   y         Int
+  Space     Space   @relation(fields: [spaceId], references: [id])
+  element   Element @relation(fields: [elementId], references: [id])
 }
 
 model Element {
-  id       String @id @unique @default(cuid())
-  name     String @default("unnamed")
-  width    Int
-  height   Int
-  imageUrl String
+  id            String          @id @unique @default(cuid())
+  name          String          @default("unnamed")
+  width         Int
+  height        Int
+  imageUrl      String
+  spaceElements spaceElements[]
+  mapElements   mapElements[]
 }
 
 model Map {
-  id     String @id @unique @default(cuid())
-  width  Int
-  height Int
-  name   String
+  id          String        @id @unique @default(cuid())
+  width       Int
+  height      Int
+  name        String
+  thumbnail   String
+  mapElements mapElements[]
 }
 
 model mapElements {
-  id        String  @id @unique @default(cuid())
+  id        String   @id @unique @default(cuid())
   mapId     String
   elementId String?
   x         Int?
   y         Int?
+  Element   Element? @relation(fields: [elementId], references: [id])
+  Map       Map      @relation(fields: [mapId], references: [id])
 }
 
 model Avatar {
   id       String  @id @unique @default(cuid())
   imageUrl String?
   name     String?
+  User     User[]
 }
 
 enum Role {

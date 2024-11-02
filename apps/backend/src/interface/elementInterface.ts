@@ -1,8 +1,12 @@
+export interface User {
+  username: string;
+  id: string;
+}
 export interface addElementRequestBody {
-  elementId: string;
-  spaceId: string;
-  x: number;
-  y: number;
+  name: string;
+  width: number;
+  height: number;
+  imageUrl: string;
 }
 
 export interface SpaceElementRequestBody {
@@ -10,4 +14,8 @@ export interface SpaceElementRequestBody {
   spaceId: string;
   x: number;
   y: number;
+}
+
+export interface UpdateElementRequestBody {
+  imageUrl: string;
 }

@@ -2,36 +2,79 @@ import { Request, Response } from "express";
 import { SpaceRequestBody } from "../interface/spaceInterface";
 import prisma from "@repo/db";
 export const createSpace = async (
-  req: Request<{}, {}, SpaceRequestBody>,
-  res: Response
+  req: SpaceRequestBody,
+  res: any
 ): Promise<any> => {
   try {
     const { name, dimensions, mapId } = req.body;
     if (!name || !dimensions || !mapId) {
-      return res.status(404).json({
+      res.status(404).json({
         message: "insufficient credentials",
       });
+      return;
     }
 
     const [width, height] = dimensions.split("*").map(Number);
-    console.log(width);
-    console.log(height);
-
-    const newSpace = await prisma.space.create({
-      data: {
-        name: name,
-        height: height,
-        // @ts-ignore
-        width: width,
+    if (!mapId) {
+      const newSpace = await prisma.space.create({
+        data: {
+          name: name,
+          height: height,
+          // @ts-ignore
+          width: width,
+        },
+      });
+      res.status(200).json({
+        spaceId: newSpace.id,
+      });
+      return;
+    }
+    const map = await prisma.map.findFirst({
+      where: {
+        id: mapId,
+      },
+      select: {
+        mapElements: true,
+        width: true,
+        height: true,
       },
     });
-    return res.status(200).json({
-      spaceId: newSpace.id,
+    if (!map) {
+      res.status(404).json({
+        message: "map not found",
+      });
+      return;
+    }
+
+    let space = await prisma.$transaction(async () => {
+      const space = await prisma.space.create({
+        data: {
+          name: name,
+          width: map.width,
+          height: map.height,
+          userId: req.user.id,
+        },
+      });
+      await prisma.spaceElements.createMany({
+        data: map.mapElements.map((m) => ({
+          elementId: m.id,
+          spaceId: space.id,
+          x: m.x!,
+          y: m.y!,
+        })),
+      });
+      return space;
     });
+
+    res.status(200).json({
+      spaceId: space.id,
+    });
+    return;
   } catch (error) {
-    return res.status(400).json({
+    res.status(400).json({
       message: error,
     });
+    return;
   }
 };
 
@@ -98,6 +141,13 @@ export const getSpace = async (req: Request, res: Response): Promise<any> => {
       where: {
         id: spaceId,
       },
+      include: {
+        elements: {
+          include: {
+            element: true,
+          },
+        },
+      },
     });
 
     if (!space) {
@@ -105,8 +155,14 @@ export const getSpace = async (req: Request, res: Response): Promise<any> => {
         message: "no space found for such spaceId",
       });
     }
+
     return res.status(200).json({
-      spaces: space,
+      dimensions: `${space.width}x${space.height}`,
+      spaceElements: space.elements,
     });
-  } catch (error) {}
+  } catch (error) {
+    return res.status(400).json({
+      message: error,
+    });
+  }
 };

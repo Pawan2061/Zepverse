@@ -12,6 +12,7 @@ import bcrypt, { hash } from "bcrypt";
 
 export const Signup = async (
   req: Request<{}, {}, SignupRequestBody>,
+
   res: Response
 ): Promise<any> => {
   try {
@@ -32,9 +33,6 @@ export const Signup = async (
         role: type,
       },
     });
-    console.log("reached here");
-
-    console.log(user);
 
     return res.status(200).json({
       userId: user.id,
@@ -89,20 +87,25 @@ export const Signin = async (
   }
 };
 export const UpdatePic = async (
-  req: Request<{}, {}, UpdatePicRequest>,
-  res: Response
+  req: UpdatePicRequest,
+  res: any
 ): Promise<any> => {
   try {
     const { avatarId } = req.body;
+    const username = req.user.username;
+    const id = req.user;
     if (!avatarId) {
       return res.status(404).json({
         message: "insufficient credentials",
       });
     }
 
-    const avatar = await prisma.avatar.create({
+    const avatar = await prisma.user.update({
+      where: {
+        username: username,
+      },
       data: {
-        id: avatarId,
+        avatarId: avatarId,
       },
     });
 
@@ -146,20 +149,18 @@ export const getBulkAvatars = async (
         .replace(/[\[\]"]/g, "")
         .split(",")
         .map((id: string) => id.trim());
-      console.log("_______");
-
-      console.log("_______");
 
       console.log(idsParam, "new ids");
 
       try {
-        const userMetadata = await prisma.avatar.findMany({
+        const userMetadata = await prisma.user.findMany({
           where: {
             id: { in: params },
           },
           select: {
             id: true,
-            imageUrl: true,
+
+            avatar: true,
           },
         });
         return res.status(200).json({ avatars: userMetadata });

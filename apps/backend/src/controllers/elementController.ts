@@ -2,37 +2,30 @@ import { Response, Request } from "express";
 import {
   addElementRequestBody,
   SpaceElementRequestBody,
+  UpdateElementRequestBody,
 } from "../interface/elementInterface";
 import prisma from "@repo/db";
+import { measureDimensions } from "../utils/checkDimensions";
 export const addElement = async (
   req: Request<{}, {}, addElementRequestBody>,
   res: Response
 ): Promise<any> => {
   try {
-    const { elementId, spaceId, x, y } = req.body;
-    if (!elementId || !spaceId || !x || !y) {
+    const { imageUrl, width, height, name } = req.body;
+    if (!imageUrl || !width || !height || !name) {
       console.log("error here");
 
       return res.status(404).json({
         message: "insufficient credentials",
       });
     }
-    // const element = await prisma.element.create({
-    //   data: {
-    //     height: height,
-    //     width: width,
-    //     imageUrl: imageUrl,
-    //     name: name,
-    //   },
-    // });
-    // if (!element) {
-    //   return res.status(400).json({
-    //     message: "element is not created",
-    //   });
-    // }
-    const element = await prisma.spaceElements.findUnique({
-      where: {
-        elementId: elementId,
+
+    const element = await prisma.element.create({
+      data: {
+        name: name,
+        width: width,
+        height: height,
+        imageUrl: imageUrl,
       },
     });
     if (!element) {
@@ -40,21 +33,55 @@ export const addElement = async (
         message: "this element is already present",
       });
     }
-    const newElement = await prisma.spaceElements.create({
-      data: {
-        elementId: elementId,
-        spaceId: spaceId,
-        x: x,
-        y: y,
-      },
-    });
 
     return res.status(200).json({
-      element: newElement,
+      element: element,
     });
   } catch (error) {
     console.log(error);
 
+    return res.status(400).json({
+      message: error,
+    });
+  }
+};
+
+export const updateElement = async (
+  req: Request<{ elementId: string }, {}, UpdateElementRequestBody>,
+  res: Response
+): Promise<any> => {
+  try {
+    const { elementId } = req.params;
+    const { imageUrl } = req.body;
+
+    if (!elementId) {
+      return res.status(404).json({
+        message: "credentials not found",
+      });
+    }
+    const element = await prisma.element.findFirst({
+      where: {
+        id: elementId,
+      },
+    });
+    if (!element) {
+      return res.status(404).json({
+        message: "not found",
+      });
+    }
+
+    const updatedImage = await prisma.element.update({
+      where: {
+        id: elementId,
+      },
+      data: {
+        imageUrl: imageUrl,
+      },
+    });
+    return res.status(200).json({
+      message: `${updatedImage.name} is updated`,
+    });
+  } catch (error) {
     return res.status(400).json({
       message: error,
     });
@@ -69,13 +96,31 @@ export const spaceElement = async (
     console.log("reached here");
 
     const { elementId, spaceId, x, y } = req.body;
-    console.log(req.body);
 
     if (!elementId || !spaceId || !x || !y) {
       return res.status(404).json({
         message: "credentials unavailable",
       });
     }
+
+    const existingSpace = await prisma.space.findUnique({
+      where: {
+        id: spaceId,
+      },
+    });
+
+    const check = await measureDimensions(x, y, existingSpace!);
+    if (!check) {
+      res.status(403).json({
+        message: "not allowed to place it",
+      });
+    }
+    if (!existingSpace) {
+      res.status(403).json({
+        message: "not allowed to place it",
+      });
+    }
+
     const spaceElement = await prisma.spaceElements.create({
       data: {
         elementId: elementId,

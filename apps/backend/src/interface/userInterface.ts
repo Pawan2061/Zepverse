@@ -1,8 +1,14 @@
+import { Request } from "express";
 enum userType {
   Admin = "Admin",
   User = "User",
   //  ~
   // ',' expected.
+}
+
+export interface User {
+  username: string;
+  id: string;
 }
 export interface SignupRequestBody {
   username: string;
@@ -23,6 +29,7 @@ export interface JwtPayload {
   password: string;
 }
 
-export interface UpdatePicRequest {
+export interface UpdatePicRequest extends Request {
   avatarId: string;
+  user: User;
 }
