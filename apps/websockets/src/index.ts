@@ -1,6 +1,6 @@
 import express from "express";
 import { WebSocket, WebSocketServer } from "ws";
-import { HandleEvent } from "./utils/hanldeEvent";
+import { HandleEvent } from "./utils/handleEvent";
 const app = express();
 
 const httpServer = app.listen(8080);
@@ -14,7 +14,9 @@ wss.on("connection", async (ws: WebSocket) => {
 
     const { type } = data;
 
-    const response = HandleEvent(type, data.payload, ws);
+    const response = await HandleEvent(type, data.payload, ws);
+    console.log(response, "is here");
+
     if (!response) {
       ws.send("error handling the response");
     }

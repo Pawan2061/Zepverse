@@ -74,6 +74,7 @@ export const Signin = async (
     console.log("cbecking is done");
 
     const payload: JwtPayload = {
+      id: user.id,
       username: user.username,
       password: user.password,
     };
