@@ -2,33 +2,41 @@ import { User } from "../interface";
 import { WebSocket } from "ws";
 
 export class SpaceManager {
-  spaces: Map<string, User[]> = new Map();
+  private static instance: SpaceManager;
+  spaces: Map<string, User[]>;
   private xdim = 0;
   private ydim = 0;
 
-  static spaceInstance: SpaceManager;
   private ws: WebSocket | null = null;
-  constructor() {
+  private constructor() {
+    console.log("new instance");
     this.spaces = new Map();
   }
   static getInstance() {
-    console.log("new instance");
+    if (!this.instance) {
+      console.log("hi pawan");
 
-    if (!this.spaceInstance) {
-      this.spaceInstance = new SpaceManager();
+      SpaceManager.instance = new SpaceManager();
     }
-    return this.spaceInstance;
+    return SpaceManager.instance;
   }
 
   addUserToSpace(user: User, spaceId: string) {
-    console.log("inside");
+    console.log("----------");
+    console.log(spaceId, Object.keys(this.spaces));
+    console.log("================");
 
-    let existingUsers = this.spaces.get(spaceId) || [];
+    const existingUsers = this.spaces.get(spaceId) || [];
 
-    existingUsers.push(user);
+    if (!existingUsers.find((u) => u.id === user.id)) {
+      console.log(existingUsers, "up");
 
-    this.spaces.set(spaceId, existingUsers);
+      existingUsers.push(user);
+      console.log(existingUsers, "down");
 
-    return this.spaces.get(spaceId);
+      this.spaces.set(spaceId, existingUsers);
+    }
+
+    return existingUsers;
   }
 }

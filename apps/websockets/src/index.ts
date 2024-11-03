@@ -14,8 +14,6 @@ wss.on("connection", async (ws: WebSocket) => {
   ws.on("message", async (message) => {
     const data = JSON.parse(message.toString());
 
-    const space = new SpaceManager();
-
     const { type } = data;
 
     await HandleEvent(type, data.payload, ws);
