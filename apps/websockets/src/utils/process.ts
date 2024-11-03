@@ -1,22 +1,19 @@
 import { JoinPayload, JoinRequest } from "../interface";
 import { getSpace } from "./dbActions";
 
-// room --- users
 export async function handleJoin(data: JoinPayload) {
-  const { message, success } = await getSpace(data.spaceId);
+  try {
+    const { space, user } = await getSpace(data);
+    console.log(user, "user is here");
+    console.log(space, "is here");
 
-  console.log(message, "it is here");
-
-  if (!success) {
     return {
-      message: "no space found",
+      type: "join_sucess",
+      message: "user joined the server",
     };
+  } catch (error) {
+    console.log(error);
   }
-
-  return {
-    type: "join_sucess",
-    message: "user joined the server",
-  };
 }
 
 export async function handleMove(payload: any) {
