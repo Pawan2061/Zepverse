@@ -12,6 +12,8 @@ export class SpaceManager {
     this.spaces = new Map();
   }
   static getInstance() {
+    console.log("new instance");
+
     if (!this.spaceInstance) {
       this.spaceInstance = new SpaceManager();
     }
@@ -21,9 +23,12 @@ export class SpaceManager {
   addUserToSpace(user: User, spaceId: string) {
     console.log("inside");
 
-    if (this.spaces.has(spaceId)) {
-      this.spaces.get(spaceId)?.push(user);
-    }
-    this.spaces.set(spaceId, [user]);
+    let existingUsers = this.spaces.get(spaceId) || [];
+
+    existingUsers.push(user);
+
+    this.spaces.set(spaceId, existingUsers);
+
+    return this.spaces.get(spaceId);
   }
 }

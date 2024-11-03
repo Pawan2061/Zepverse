@@ -2,7 +2,6 @@ import { Dimension, JoinPayload, JoinRequest } from "../interface";
 import { getSpaceAndUser } from "./dbActions";
 import { getDimension } from "./dim";
 import { SpaceManager } from "./RoomSpace";
-const spaceManager = SpaceManager.getInstance();
 
 export async function handleJoin(data: JoinPayload) {
   try {
@@ -13,9 +12,9 @@ export async function handleJoin(data: JoinPayload) {
         message: "user cannot join",
       };
     }
-    console.log("before");
 
-    spaceManager.addUserToSpace(user, space);
+    const users = SpaceManager.getInstance().addUserToSpace(user, space);
+
     const { width, height } = (await getDimension(space)) as Dimension;
 
     return {
@@ -25,6 +24,7 @@ export async function handleJoin(data: JoinPayload) {
           x: width,
           y: height,
         },
+        users: users,
       },
     };
   } catch (error) {
@@ -33,8 +33,6 @@ export async function handleJoin(data: JoinPayload) {
 }
 
 export async function handleMove(payload: any) {
-  console.log("handling the move");
-
   return {
     type: "moving",
     message: "moving in the server",
