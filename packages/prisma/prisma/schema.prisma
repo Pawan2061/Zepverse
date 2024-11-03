@@ -60,6 +60,7 @@ model Map {
   height      Int
   name        String
   thumbnail   String
+  static      Position      @default(True)
   mapElements mapElements[]
 }
 
@@ -83,4 +84,9 @@ model Avatar {
 enum Role {
   Admin
   User
+}
+
+enum Position {
+  True
+  False
 }

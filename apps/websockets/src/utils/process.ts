@@ -13,11 +13,16 @@ export async function handleJoin(data: JoinPayload) {
       };
     } else {
       const users = spaceInstance.addUserToSpace(user!, space!.id);
+      console.log("inside broadcasting");
+
+      const response = spaceInstance.broadCastToUsers(users, space!.id);
+      console.log(response, "response is here");
+      console.log("outside broadcasting");
 
       const { width, height } = (await getDimension(space)) as Dimension;
 
       return {
-        type: "join_sucess",
+        type: "space-joined",
         payload: {
           spawn: {
             x: width,

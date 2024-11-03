@@ -17,9 +17,5 @@ wss.on("connection", async (ws: WebSocket) => {
     const { type } = data;
 
     await HandleEvent(type, data.payload, ws);
-
-    // if (!response) {
-    //   ws.send("error handling the response");
-    // }
   });
 });

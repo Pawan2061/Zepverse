@@ -15,6 +15,7 @@ elementRouter.put(
   [verifyToken, checkAdmin],
   updateElement
 );
+
 elementRouter.post("/space/element", verifyToken, spaceElement);
 elementRouter.delete("/space/element/:id", verifyToken, deleteSpaceElement);
 elementRouter.get("/elements", getAllElements);

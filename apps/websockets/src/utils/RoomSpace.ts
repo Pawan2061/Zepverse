@@ -22,21 +22,23 @@ export class SpaceManager {
   }
 
   addUserToSpace(user: User, spaceId: string) {
-    console.log("----------");
-    console.log(spaceId, Object.keys(this.spaces));
-    console.log("================");
-
     const existingUsers = this.spaces.get(spaceId) || [];
 
     if (!existingUsers.find((u) => u.id === user.id)) {
-      console.log(existingUsers, "up");
-
       existingUsers.push(user);
-      console.log(existingUsers, "down");
-
       this.spaces.set(spaceId, existingUsers);
     }
 
     return existingUsers;
+  }
+
+  broadCastToUsers(users: User[], spaceId: string) {
+    if (!this.spaces.has(spaceId)) {
+      return;
+    }
+
+    this.spaces.get(spaceId)?.map((user) => {
+      this.ws?.send(JSON.stringify(`${user.username} has joined`));
+    });
   }
 }

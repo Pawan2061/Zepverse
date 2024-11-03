@@ -100,8 +100,18 @@ export const UpdatePic = async (
         message: "insufficient credentials",
       });
     }
+    const check = await prisma.avatar.findUnique({
+      where: {
+        id: avatarId,
+      },
+    });
+    if (!check) {
+      return res.status(404).json({
+        message: "no such avatar found",
+      });
+    }
 
-    const avatar = await prisma.user.update({
+    const user = await prisma.user.update({
       where: {
         username: username,
       },
@@ -111,7 +121,7 @@ export const UpdatePic = async (
     });
 
     return res.status(200).json({
-      message: `avatar ${avatarId} is created`,
+      message: `avatar ${user.avatarId} is created`,
     });
   } catch (error) {
     return res.status(403).json({
