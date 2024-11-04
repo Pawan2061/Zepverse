@@ -14,7 +14,7 @@ export const createSpace = async (
       return;
     }
 
-    const [width, height] = dimensions.split("*").map(Number);
+    const [width, height] = dimensions.split("x").map(Number);
     if (!mapId) {
       const newSpace = await prisma.space.create({
         data: {
@@ -55,9 +55,32 @@ export const createSpace = async (
           userId: req.user.id,
         },
       });
+
+      const validMapElements = await Promise.all(
+        map.mapElements.filter(async (m) => {
+          if (m.elementId) {
+            const elementExists = await prisma.element.findUnique({
+              where: { id: m.elementId },
+            });
+            return !!elementExists;
+          }
+          return false;
+        })
+      );
+
+      await prisma.spaceElements.createMany({
+        data: validMapElements.map((m) => ({
+          elementId: m.id,
+          spaceId: space.id,
+          x: m.x!,
+          y: m.y!,
+        })),
+      });
+
       await prisma.spaceElements.createMany({
         data: map.mapElements.map((m) => ({
           elementId: m.id,
+
           spaceId: space.id,
           x: m.x!,
           y: m.y!,
@@ -87,7 +110,7 @@ export const deleteSpace = async (
     console.log(spaceId);
 
     if (!spaceId) {
-      return res.status(404).json({
+      return res.status(403).json({
         message: "no spaceid found",
       });
     }

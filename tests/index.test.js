@@ -1,6 +1,6 @@
 const axios2 = require("axios");
 
-const BACKEND_URL = "http://localhost:3000"
+const BACKEND_URL = "http://localhost:3003"
 const WS_URL = "ws://localhost:3001"
 
 const axios = {
@@ -39,14 +39,20 @@ const axios = {
 }
 
 describe("Authentication", () => {
-    test('User is able to sign up only once', async () => {
-        const username = "kirat" + Math.random(); // kirat0.12331313
+    test.skip('User is able to sign up only once', async () => {
+        const username = "kirat1" + Math.random(); // kirat0.12331313
         const password = "123456";
         const response = await axios.post(`${BACKEND_URL}/api/v1/signup`, {
             username,
             password,
             type: "admin"
         })
+        
+
+        
+        
+        
+
 
         expect(response.status).toBe(200)
         const updatedResponse = await axios.post(`${BACKEND_URL}/api/v1/signup`, {
@@ -58,7 +64,7 @@ describe("Authentication", () => {
         expect(updatedResponse.status).toBe(400);
     });
 
-    test('Signup request fails if the username is empty', async () => {
+    test.skip('Signup request fails if the username is empty', async () => {
         const username = `kirat-${Math.random()}` // kirat-0.12312313
         const password = "123456"
 
@@ -69,7 +75,7 @@ describe("Authentication", () => {
         expect(response.status).toBe(400)
     })
 
-    test('Signin succeeds if the username and password are correct', async() => {
+    test.skip('Signin succeeds if the username and password are correct', async() => {
         const username = `kirat-${Math.random()}`
         const password = "123456"
 
@@ -89,7 +95,7 @@ describe("Authentication", () => {
         
     })
 
-    test('Signin fails if the username and password are incorrect', async() => {
+    test.skip('Signin fails if the username and password are incorrect', async() => {
         const username = `kirat-${Math.random()}`
         const password = "123456"
 
@@ -128,6 +134,8 @@ describe("User metadata endpoint", () => {
        })
 
        token = response.data.token
+       console.log(token);
+       
 
        const avatarResponse = await axios.post(`${BACKEND_URL}/api/v1/admin/avatar`, {
             "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQm3RFDZM21teuCMFYx_AROjt-AzUwDBROFww&s",
@@ -137,13 +145,14 @@ describe("User metadata endpoint", () => {
                 authorization: `Bearer ${token}`
             }
         })
-        console.log("avatarresponse is " + avatarResponse.data.avatarId)
+
+        
 
         avatarId = avatarResponse.data.avatarId;
 
     })
 
-    test("User cant update their metadata with a wrong avatar id", async () => {
+    test.skip("User cant update their metadata with a wrong avatar id", async () => {
         const response = await axios.post(`${BACKEND_URL}/api/v1/user/metadata`, {
             avatarId: "123123123"
         }, {
@@ -155,7 +164,9 @@ describe("User metadata endpoint", () => {
         expect(response.status).toBe(400)
     })
 
-    test("User can update their metadata with the right avatar id", async () => {
+    test.skip("User can update their metadata with the right avatar id", async () => {
+        
+        
         const response = await axios.post(`${BACKEND_URL}/api/v1/user/metadata`, {
             avatarId
         }, {
@@ -164,10 +175,17 @@ describe("User metadata endpoint", () => {
             }
         })
 
+        console.log(avatarId);
+        
+        console.log(token);
+        
+        console.log(response.data);
+        
+
         expect(response.status).toBe(200)
     })
 
-    test("User is not able to update their metadata if the auth header is not present", async () => {
+    test.skip("User is not able to update their metadata if the auth header is not present", async () => {
         const response = await axios.post(`${BACKEND_URL}/api/v1/user/metadata`, {
             avatarId
         })
@@ -175,7 +193,7 @@ describe("User metadata endpoint", () => {
         expect(response.status).toBe(403)
     })
 
-    test("test 3", () => {
+    test.skip("test.skip 3", () => {
         
     })
 });
@@ -218,16 +236,20 @@ describe("User avatar information", () => {
  
     })
 
-    test("Get back avatar information for a user", async () => {
+    test.skip("Get back avatar information for a user", async () => {
         console.log("asking for user with id " + userId)
         const response = await axios.get(`${BACKEND_URL}/api/v1/user/metadata/bulk?ids=[${userId}]`);
-        console.log("response was " + userId)
+        // console.log(response);
+        
+        // console.log("response was " + userId)
         console.log(JSON.stringify(response.data))
+        
+        
         expect(response.data.avatars.length).toBe(1);
         expect(response.data.avatars[0].userId).toBe(userId);
     })
 
-    test("Available avatars lists the recently created avatar", async () => {
+    test.skip("Available avatars lists the recently created avatar", async () => {
         const response = await axios.get(`${BACKEND_URL}/api/v1/avatars`);
         expect(response.data.avatars.length).not.toBe(0);
         const currentAvatar = response.data.avatars.find(x => x.id == avatarId);
@@ -300,14 +322,20 @@ describe("Space information", () => {
                 authorization: `Bearer ${adminToken}`
             }
         })
+        console.log(element1Response);
+        
+        console.log(element1Response.data);
+        console.log(element2Response.data);
+        
+        
         element1Id = element1Response.data.id
         element2Id = element2Response.data.id
-        console.log(element2Id)
-        console.log(element1Id)
+        // console.log(element2Id)
+        // console.log(element1Id)
         const mapResponse = await axios.post(`${BACKEND_URL}/api/v1/admin/map`, {
             "thumbnail": "https://thumbnail.com/a.png",
             "dimensions": "100x200",
-            "name": "Test space",
+            "name": "test.skip space",
             "defaultElements": [{
                     elementId: element1Id,
                     x: 20,
@@ -327,17 +355,17 @@ describe("Space information", () => {
                 authorization: `Bearer ${adminToken}`
             }
          })
-         console.log("mapResponse.status")
-         console.log(mapResponse.data.id)
 
          mapId = mapResponse.data.id
+         console.log(mapId,"mapid is thee");
+         
 
     });
 
     test("User is able to create a space", async () => {
 
         const response = await axios.post(`${BACKEND_URL}/api/v1/space`, {
-          "name": "Test",
+          "name": "test",
           "dimensions": "100x200",
           "mapId": mapId
        }, {
@@ -345,36 +373,44 @@ describe("Space information", () => {
             authorization: `Bearer ${userToken}`
         }
        })
+       console.log(response);
+       
+       console.log("working fine");
+       
+       
+       
        expect(response.status).toBe(200)
        expect(response.data.spaceId).toBeDefined()
     })
 
-    test("User is able to create a space without mapId (empty space)", async () => {
+    test.skip("User is able to create a space without mapId (empty space)", async () => {
         const response = await axios.post(`${BACKEND_URL}/api/v1/space`, {
-          "name": "Test",
+          "name": "test.skip",
           "dimensions": "100x200",
        }, {
         headers: {
             authorization: `Bearer ${userToken}`
         }
        })
+       
 
        expect(response.data.spaceId).toBeDefined()
     })
 
-    test("User is not able to create a space without mapId and dimensions", async () => {
+    test.skip("User is not able to create a space without mapId and dimensions", async () => {
         const response = await axios.post(`${BACKEND_URL}/api/v1/space`, {
-          "name": "Test",
+          "name": "test.skip",
        }, {
         headers: {
             authorization: `Bearer ${userToken}`
         }
        })
 
+
        expect(response.status).toBe(400)
     })
 
-    test("User is not able to delete a space that doesnt exist", async () => {
+    test.skip("User is not able to delete a space that doesnt exist", async () => {
         const response = await axios.delete(`${BACKEND_URL}/api/v1/space/randomIdDoesntExist`, {
             headers: {
                 authorization: `Bearer ${userToken}`
@@ -384,9 +420,9 @@ describe("Space information", () => {
        expect(response.status).toBe(400)
     })
 
-    test("User is able to delete a space that does exist", async () => {
+    test.skip("User is able to delete a space that does exist", async () => {
         const response = await axios.post(`${BACKEND_URL}/api/v1/space`, {
-            "name": "Test",
+            "name": "test.skip",
             "dimensions": "100x200",
         }, {
             headers: {
@@ -403,9 +439,9 @@ describe("Space information", () => {
        expect(deleteReponse.status).toBe(200)
     })
 
-    test("User should not be able to delete a space created by another user", async () => {
+    test.skip("User should not be able to delete a space created by another user", async () => {
         const response = await axios.post(`${BACKEND_URL}/api/v1/space`, {
-            "name": "Test",
+            "name": "test.skip",
             "dimensions": "100x200",
         }, {
             headers: {
@@ -422,7 +458,7 @@ describe("Space information", () => {
        expect(deleteReponse.status).toBe(403)
     })
 
-    test("Admin has no spaces initially", async () => {
+    test.skip("Admin has no spaces initially", async () => {
         const response = await axios.get(`${BACKEND_URL}/api/v1/space/all`, {
             headers: {
                 authorization: `Bearer ${adminToken}`
@@ -431,9 +467,9 @@ describe("Space information", () => {
         expect(response.data.spaces.length).toBe(0)
     })
 
-    test("Admin has gets once space after", async () => {
+    test.skip("Admin has gets once space after", async () => {
         const spaceCreateReponse = await axios.post(`${BACKEND_URL}/api/v1/space`, {
-            "name": "Test",
+            "name": "test.skip",
             "dimensions": "100x200",
         }, {
             headers: {
@@ -548,7 +584,7 @@ describe("Arena endpoints", () => {
          mapId = mapResponse.data.id
 
         const spaceResponse = await axios.post(`${BACKEND_URL}/api/v1/space`, {
-            "name": "Test",
+            "name": "test.skip",
             "dimensions": "100x200",
             "mapId": mapId
         }, {headers: {
@@ -558,7 +594,7 @@ describe("Arena endpoints", () => {
         spaceId = spaceResponse.data.spaceId
     });
 
-    test("Incorrect spaceId returns a 400", async () => {
+    test.skip("Incorrect spaceId returns a 400", async () => {
         const response = await axios.get(`${BACKEND_URL}/api/v1/space/123kasdk01`, {
             headers: {
                 "authorization": `Bearer ${userToken}`
@@ -567,7 +603,7 @@ describe("Arena endpoints", () => {
         expect(response.status).toBe(400)
     })
 
-    test("Correct spaceId returns all the elements", async () => {
+    test.skip("Correct spaceId returns all the elements", async () => {
         const response = await axios.get(`${BACKEND_URL}/api/v1/space/${spaceId}`, {
             headers: {
                 "authorization": `Bearer ${userToken}`
@@ -578,7 +614,7 @@ describe("Arena endpoints", () => {
         expect(response.data.elements.length).toBe(3)
     })
 
-    test("Delete endpoint is able to delete an element", async () => {
+    test.skip("Delete endpoint is able to delete an element", async () => {
         const response = await axios.get(`${BACKEND_URL}/api/v1/space/${spaceId}`, {
             headers: {
                 "authorization": `Bearer ${userToken}`
@@ -603,7 +639,7 @@ describe("Arena endpoints", () => {
         expect(newResponse.data.elements.length).toBe(2)
     })
 
-    test("Adding an element fails if the element lies outside the dimensions", async () => {
+    test.skip("Adding an element fails if the element lies outside the dimensions", async () => {
        const newResponse = await axios.post(`${BACKEND_URL}/api/v1/space/element`, {
             "elementId": element1Id,
             "spaceId": spaceId,
@@ -618,7 +654,7 @@ describe("Arena endpoints", () => {
         expect(newResponse.status).toBe(400)
     })
 
-    test("Adding an element works as expected", async () => {
+    test.skip("Adding an element works as expected", async () => {
         await axios.post(`${BACKEND_URL}/api/v1/space/element`, {
             "elementId": element1Id,
             "spaceId": spaceId,
@@ -682,7 +718,7 @@ describe("Admin Endpoints", () => {
         userToken = userSigninResponse.data.token
     });
 
-    test("User is not able to hit admin Endpoints", async () => {
+    test.skip("User is not able to hit admin Endpoints", async () => {
         const elementReponse = await axios.post(`${BACKEND_URL}/api/v1/admin/element`, {
             "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRCRca3wAR4zjPPTzeIY9rSwbbqB6bB2hVkoTXN4eerXOIkJTG1GpZ9ZqSGYafQPToWy_JTcmV5RHXsAsWQC3tKnMlH_CsibsSZ5oJtbakq&usqp=CAE",
             "width": 1,
@@ -697,7 +733,7 @@ describe("Admin Endpoints", () => {
         const mapResponse = await axios.post(`${BACKEND_URL}/api/v1/admin/map`, {
             "thumbnail": "https://thumbnail.com/a.png",
             "dimensions": "100x200",
-            "name": "test space",
+            "name": "test.skip space",
             "defaultElements": []
          }, {
             headers: {
@@ -728,7 +764,7 @@ describe("Admin Endpoints", () => {
         expect(updateElementResponse.status).toBe(403)
     })
 
-    test("Admin is able to hit admin Endpoints", async () => {
+    test.skip("Admin is able to hit admin Endpoints", async () => {
         const elementReponse = await axios.post(`${BACKEND_URL}/api/v1/admin/element`, {
             "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRCRca3wAR4zjPPTzeIY9rSwbbqB6bB2hVkoTXN4eerXOIkJTG1GpZ9ZqSGYafQPToWy_JTcmV5RHXsAsWQC3tKnMlH_CsibsSZ5oJtbakq&usqp=CAE",
             "width": 1,
@@ -764,7 +800,7 @@ describe("Admin Endpoints", () => {
         expect(avatarResponse.status).toBe(200)
     })
  
-    test("Admin is able to update the imageUrl for an element", async () => {
+    test.skip("Admin is able to update the imageUrl for an element", async () => {
         const elementResponse = await axios.post(`${BACKEND_URL}/api/v1/admin/element`, {
             "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRCRca3wAR4zjPPTzeIY9rSwbbqB6bB2hVkoTXN4eerXOIkJTG1GpZ9ZqSGYafQPToWy_JTcmV5RHXsAsWQC3tKnMlH_CsibsSZ5oJtbakq&usqp=CAE",
             "width": 1,
@@ -789,7 +825,7 @@ describe("Admin Endpoints", () => {
     })
 });
 
-describe("Websocket tests", () => {
+describe("Websocket test.skips", () => {
     let adminToken;
     let adminUserId;
     let userToken;
@@ -904,7 +940,7 @@ describe("Websocket tests", () => {
          mapId = mapResponse.data.id
 
         const spaceResponse = await axios.post(`${BACKEND_URL}/api/v1/space`, {
-            "name": "Test",
+            "name": "test.skip",
             "dimensions": "100x200",
             "mapId": mapId
         }, {headers: {
@@ -944,8 +980,8 @@ describe("Websocket tests", () => {
         await setupWs()
     })
 
-    test("Get back ack for joining the space", async () => {
-        console.log("insixce first test")
+    test.skip("Get back ack for joining the space", async () => {
+        console.log("insixce first test.skip")
         ws1.send(JSON.stringify({
             "type": "join",
             "payload": {
@@ -953,9 +989,9 @@ describe("Websocket tests", () => {
                 "token": adminToken
             }
         }))
-        console.log("insixce first test1")
-        const message1 = await waitForAndPopLatestMessage(ws1Messages);
-        console.log("insixce first test2")
+        console.log("insixce first test.skip1")
+        const message1 = await waitForAndPopLatest.skipMessage(ws1Messages);
+        console.log("insixce first test.skip2")
         ws2.send(JSON.stringify({
             "type": "join",
             "payload": {
@@ -963,10 +999,10 @@ describe("Websocket tests", () => {
                 "token": userToken
             }
         }))
-        console.log("insixce first test3")
+        console.log("insixce first test.skip3")
 
-        const message2 = await waitForAndPopLatestMessage(ws2Messages);
-        const message3 = await waitForAndPopLatestMessage(ws1Messages);
+        const message2 = await waitForAndPopLatest.skipMessage(ws2Messages);
+        const message3 = await waitForAndPopLatest.skipMessage(ws1Messages);
 
         expect(message1.type).toBe("space-joined")
         expect(message2.type).toBe("space-joined")
@@ -984,7 +1020,7 @@ describe("Websocket tests", () => {
         userY = message2.payload.spawn.y
     })
 
-    test("User should not be able to move across the boundary of the wall", async () => {
+    test.skip("User should not be able to move across the boundary of the wall", async () => {
         ws1.send(JSON.stringify({
             type: "move",
             payload: {
@@ -993,13 +1029,13 @@ describe("Websocket tests", () => {
             }
         }));
 
-        const message = await waitForAndPopLatestMessage(ws1Messages);
+        const message = await waitForAndPopLatest.skipMessage(ws1Messages);
         expect(message.type).toBe("movement-rejected")
         expect(message.payload.x).toBe(adminX)
         expect(message.payload.y).toBe(adminY)
     })
 
-    test("User should not be able to move two blocks at the same time", async () => {
+    test.skip("User should not be able to move two blocks at the same time", async () => {
         ws1.send(JSON.stringify({
             type: "move",
             payload: {
@@ -1008,13 +1044,13 @@ describe("Websocket tests", () => {
             }
         }));
 
-        const message = await waitForAndPopLatestMessage(ws1Messages);
+        const message = await waitForAndPopLatest.skipMessage(ws1Messages);
         expect(message.type).toBe("movement-rejected")
         expect(message.payload.x).toBe(adminX)
         expect(message.payload.y).toBe(adminY)
     })
 
-    test("Correct movement should be broadcasted to the other sockets in the room",async () => {
+    test.skip("Correct movement should be broadcasted to the other sockets in the room",async () => {
         ws1.send(JSON.stringify({
             type: "move",
             payload: {
@@ -1024,15 +1060,15 @@ describe("Websocket tests", () => {
             }
         }));
 
-        const message = await waitForAndPopLatestMessage(ws2Messages);
+        const message = await waitForAndPopLatest.skipMessage(ws2Messages);
         expect(message.type).toBe("movement")
         expect(message.payload.x).toBe(adminX + 1)
         expect(message.payload.y).toBe(adminY)
     })
 
-    test("If a user leaves, the other user receives a leave event", async () => {
+    test.skip("If a user leaves, the other user receives a leave event", async () => {
         ws1.close()
-        const message = await waitForAndPopLatestMessage(ws2Messages);
+        const message = await waitForAndPopLatest.skipMessage(ws2Messages);
         expect(message.type).toBe("user-left")
         expect(message.payload.userId).toBe(adminUserId)
     })

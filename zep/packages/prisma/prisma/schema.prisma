@@ -49,18 +49,19 @@ model Element {
   name          String          @default("unnamed")
   width         Int
   height        Int
-  imageUrl      String
+  imageUrl      String?
+  static        Boolean?
   spaceElements spaceElements[]
   mapElements   mapElements[]
 }
 
 model Map {
-  id          String        @id @unique @default(cuid())
-  width       Int
-  height      Int
-  name        String
-  thumbnail   String
-  static      Position      @default(True)
+  id        String @id @unique @default(cuid())
+  width     Int
+  height    Int
+  name      String
+  thumbnail String
+
   mapElements mapElements[]
 }
 
@@ -82,11 +83,6 @@ model Avatar {
 }
 
 enum Role {
-  Admin
-  User
-}
-
-enum Position {
-  True
-  False
+  admin
+  user
 }

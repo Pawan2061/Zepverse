@@ -9,9 +9,9 @@ import {
 } from "../controllers/elementController";
 import { checkAdmin, verifyToken } from "../utils/jwt";
 
-elementRouter.post("/create/element", [verifyToken, checkAdmin], addElement);
+elementRouter.post("/admin/element", [verifyToken, checkAdmin], addElement);
 elementRouter.put(
-  "/element/:elementId",
+  "/admin/element/:elementId",
   [verifyToken, checkAdmin],
   updateElement
 );

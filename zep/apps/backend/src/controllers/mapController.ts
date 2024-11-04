@@ -1,6 +1,6 @@
 import prisma from "@repo/db";
 import { Request, Response } from "express";
-import { CreateMap } from "../interface/mapInterface";
+import { CreateAvatar, CreateMap } from "../interface/mapInterface";
 
 export const createMap = async (
   req: Request<{}, {}, CreateMap>,
@@ -42,6 +42,37 @@ export const createMap = async (
     }
     return res.status(200).json({
       id: map.id,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      error: error,
+    });
+  }
+};
+
+export const createAvatar = async (
+  req: Request<{}, {}, CreateAvatar>,
+  res: Response
+): Promise<any> => {
+  try {
+    const { imageUrl, name } = req.body;
+    if (!name || !imageUrl) {
+      return res.status(400).json({
+        message: "no avatar found",
+      });
+    }
+    console.log("creatinga avaatar");
+
+    const avatar = await prisma.avatar.create({
+      data: {
+        imageUrl: imageUrl,
+        name: name,
+      },
+    });
+    console.log(avatar, "is made");
+
+    return res.status(200).json({
+      avatarId: avatar.id,
     });
   } catch (error) {
     return res.status(400).json({

@@ -15,5 +15,5 @@ userRouter.post("/signup", Signup);
 userRouter.post("/signin", Signin);
 userRouter.post("/user/metadata", verifyToken, UpdatePic);
 userRouter.get("/avatars", getAvatars);
-userRouter.get("/user/metadata/bulk", verifyToken, getBulkAvatars);
+userRouter.get("/user/metadata/bulk", getBulkAvatars);
 userRouter.get("/info", [verifyToken, checkAdmin], check);

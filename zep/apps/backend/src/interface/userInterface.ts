@@ -1,7 +1,7 @@
 import { Request } from "express";
 enum userType {
-  Admin = "Admin",
-  User = "User",
+  Admin = "admin",
+  User = "user",
   //  ~
   // ',' expected.
 }

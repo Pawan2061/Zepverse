@@ -20,11 +20,12 @@ export const Signup = async (
     console.log(type);
 
     if (!username || !type || !password) {
-      return res.status(404).json({
+      return res.status(400).json({
         message: "insufficient credentials",
       });
     }
     const hashedPassword = await HashPassword(password);
+    console.log("handlign password");
 
     const user = await prisma.user.create({
       data: {
@@ -33,6 +34,7 @@ export const Signup = async (
         role: type,
       },
     });
+    console.log("user");
 
     return res.status(200).json({
       userId: user.id,
@@ -49,7 +51,7 @@ export const Signin = async (
   try {
     const { username, password } = req.body;
     if (!username || !password) {
-      res.status(404).json({
+      res.status(403).json({
         message: "insufficient credentials",
       });
     }
@@ -60,7 +62,7 @@ export const Signin = async (
     });
 
     if (!user) {
-      return res.status(404).json({
+      return res.status(403).json({
         message: "no such user found",
       });
     }
@@ -96,17 +98,18 @@ export const UpdatePic = async (
     const username = req.user.username;
     const id = req.user;
     if (!avatarId) {
-      return res.status(404).json({
+      return res.status(400).json({
         message: "insufficient credentials",
       });
     }
+
     const check = await prisma.avatar.findUnique({
       where: {
         id: avatarId,
       },
     });
     if (!check) {
-      return res.status(404).json({
+      return res.status(400).json({
         message: "no such avatar found",
       });
     }
@@ -172,7 +175,12 @@ export const getBulkAvatars = async (
             avatar: true,
           },
         });
-        return res.status(200).json({ avatars: userMetadata });
+        return res.status(200).json({
+          avatars: userMetadata.map((user) => ({
+            userId: user.id,
+            imageUrl: user.avatar,
+          })),
+        });
       } catch (error) {
         console.log(error);
       }

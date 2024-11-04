@@ -27,7 +27,7 @@ export const verifyToken = async (
   console.log(token, "token is here");
 
   if (!token) {
-    res.status(401).json({
+    res.status(403).json({
       error: "unauthorized",
     });
     return;
@@ -64,7 +64,7 @@ export const checkAdmin = async (
   });
   console.log(user, "is here");
 
-  if (user?.role != "Admin") {
+  if (user?.role != "admin") {
     res.status(404).json({ msg: "No sufficient credentials" });
     return;
   }

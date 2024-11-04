@@ -6,13 +6,15 @@ import {
 } from "../interface/elementInterface";
 import prisma from "@repo/db";
 import { measureDimensions } from "../utils/checkDimensions";
+
 export const addElement = async (
   req: Request<{}, {}, addElementRequestBody>,
   res: Response
 ): Promise<any> => {
   try {
     const { imageUrl, width, height, name } = req.body;
-    if (!imageUrl || !width || !height || !name) {
+    const body = req.body;
+    if (!imageUrl || !width || !height || !body) {
       console.log("error here");
 
       return res.status(404).json({
@@ -26,6 +28,7 @@ export const addElement = async (
         width: width,
         height: height,
         imageUrl: imageUrl,
+        static: body.static,
       },
     });
     if (!element) {

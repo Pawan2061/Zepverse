@@ -7,6 +7,7 @@ export interface addElementRequestBody {
   width: number;
   height: number;
   imageUrl: string;
+  static: boolean;
 }
 
 export interface SpaceElementRequestBody {

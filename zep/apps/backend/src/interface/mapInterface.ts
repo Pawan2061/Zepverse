@@ -10,3 +10,8 @@ export interface CreateMap extends Request {
   name: string;
   defaultElements: DefaultElement[];
 }
+
+export interface CreateAvatar extends Request {
+  imageUrl: string;
+  name: string;
+}
