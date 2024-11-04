@@ -8,6 +8,7 @@ import {
 } from "../controllers/spaceController";
 import { verifyToken } from "../utils/jwt";
 spaceRouter.post("/space", verifyToken, createSpace);
+spaceRouter.get("/space/all", verifyToken, getAllSpaces);
 spaceRouter.get("/space/:spaceId", getSpace);
-spaceRouter.get("/space/all", getAllSpaces);
-spaceRouter.delete("/space/spaceId", verifyToken, deleteSpace);
+
+spaceRouter.delete("/space/:spaceId", verifyToken, deleteSpace);

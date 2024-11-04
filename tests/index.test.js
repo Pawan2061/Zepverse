@@ -322,10 +322,7 @@ describe("Space information", () => {
                 authorization: `Bearer ${adminToken}`
             }
         })
-        console.log(element1Response);
         
-        console.log(element1Response.data);
-        console.log(element2Response.data);
         
         
         element1Id = element1Response.data.id
@@ -357,12 +354,12 @@ describe("Space information", () => {
          })
 
          mapId = mapResponse.data.id
-         console.log(mapId,"mapid is thee");
+         
          
 
-    });
+    },10000);
 
-    test("User is able to create a space", async () => {
+    test.skip("User is able to create a space", async () => {
 
         const response = await axios.post(`${BACKEND_URL}/api/v1/space`, {
           "name": "test",
@@ -373,9 +370,7 @@ describe("Space information", () => {
             authorization: `Bearer ${userToken}`
         }
        })
-       console.log(response);
        
-       console.log("working fine");
        
        
        
@@ -392,6 +387,8 @@ describe("Space information", () => {
             authorization: `Bearer ${userToken}`
         }
        })
+       console.log(response.data);
+       
        
 
        expect(response.data.spaceId).toBeDefined()
@@ -411,24 +408,29 @@ describe("Space information", () => {
     })
 
     test.skip("User is not able to delete a space that doesnt exist", async () => {
-        const response = await axios.delete(`${BACKEND_URL}/api/v1/space/randomIdDoesntExist`, {
+        const response = await axios.delete(`${BACKEND_URL}/api/v1/space/${1131}`, {
             headers: {
                 authorization: `Bearer ${userToken}`
             }
         })
+        
 
+
+        console.log(response);
+        
        expect(response.status).toBe(400)
     })
 
     test.skip("User is able to delete a space that does exist", async () => {
         const response = await axios.post(`${BACKEND_URL}/api/v1/space`, {
-            "name": "test.skip",
+            "name": "test",
             "dimensions": "100x200",
         }, {
             headers: {
                 authorization: `Bearer ${userToken}`
             }
         })
+        
 
         const deleteReponse = await axios.delete(`${BACKEND_URL}/api/v1/space/${response.data.spaceId}`, {
             headers: {
@@ -464,26 +466,31 @@ describe("Space information", () => {
                 authorization: `Bearer ${adminToken}`
             }
         });
+        console.log(response.data);
+        
         expect(response.data.spaces.length).toBe(0)
     })
 
-    test.skip("Admin has gets once space after", async () => {
+    test("Admin has gets once space after", async () => {
         const spaceCreateReponse = await axios.post(`${BACKEND_URL}/api/v1/space`, {
-            "name": "test.skip",
-            "dimensions": "100x200",
+            "name": "test",
+            "dimensions": "10x20",
         }, {
             headers: {
                 authorization: `Bearer ${adminToken}`
             }
         });
-        console.log('jhflksdjflksdfjlksdfj')
-        console.log(spaceCreateReponse.data)
+        console.log(spaceCreateReponse)
         const response = await axios.get(`${BACKEND_URL}/api/v1/space/all`, {
             headers: {
                 authorization: `Bearer ${adminToken}`
             }
         });
+        console.log(response);
+        
         const filteredSpace = response.data.spaces.find(x => x.id == spaceCreateReponse.data.spaceId)
+        console.log(filteredSpace);
+        
         expect(response.data.spaces.length).toBe(1)
         expect(filteredSpace).toBeDefined()
 

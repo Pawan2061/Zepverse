@@ -40,7 +40,7 @@ model spaceElements {
   spaceId   String
   x         Int
   y         Int
-  Space     Space   @relation(fields: [spaceId], references: [id])
+  Space     Space   @relation(fields: [spaceId], references: [id], onDelete: Cascade)
   element   Element @relation(fields: [elementId], references: [id])
 }
 

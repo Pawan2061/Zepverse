@@ -8,7 +8,6 @@ export const createToken = async (payload: JwtPayload) => {
     if (!process.env.JWT_SECRET) {
       throw new Error("jwt not defined");
     }
-    console.log("creating a token");
 
     return jwt.sign(payload, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_IN ?? "1500s",
@@ -22,9 +21,9 @@ export const verifyToken = async (
   res: Response,
   next: NextFunction
 ) => {
-  const token = req.headers.authorization?.split(" ")[1];
+  console.log("verifgying the token");
 
-  console.log(token, "token is here");
+  const token = req.headers.authorization?.split(" ")[1];
 
   if (!token) {
     res.status(403).json({
@@ -40,10 +39,11 @@ export const verifyToken = async (
         res.json({ error: err.message });
         return;
       }
-      console.log("authenticated");
-      console.log(req.user);
+      console.log(decodedToken);
 
       req.user = decodedToken;
+
+      console.log("going to the next one");
 
       next();
     }
@@ -55,21 +55,16 @@ export const checkAdmin = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log("checking");
-
   const user = await prisma.user.findUnique({
     where: {
       username: req.user.username,
     },
   });
-  console.log(user, "is here");
 
   if (user?.role != "admin") {
     res.status(404).json({ msg: "No sufficient credentials" });
     return;
   }
-  console.log("he is the admin");
 
   next();
-  console.log("after");
 };

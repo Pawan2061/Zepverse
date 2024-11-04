@@ -82,7 +82,6 @@ export const Signin = async (
     };
 
     const token = await createToken(payload);
-    console.log(token, "is here guys");
 
     return res.status(200).json({ token: token });
   } catch (erorr) {

@@ -7,12 +7,13 @@ export const createSpace = async (
 ): Promise<any> => {
   try {
     const { name, dimensions, mapId } = req.body;
-    if (!name || !dimensions || !mapId) {
-      res.status(404).json({
+    if (!name || !dimensions) {
+      res.status(400).json({
         message: "insufficient credentials",
       });
       return;
     }
+    const id = req.user.id;
 
     const [width, height] = dimensions.split("x").map(Number);
     if (!mapId) {
@@ -22,6 +23,7 @@ export const createSpace = async (
           height: height,
           // @ts-ignore
           width: width,
+          userId: id,
         },
       });
       res.status(200).json({
@@ -39,14 +41,50 @@ export const createSpace = async (
         height: true,
       },
     });
+
     if (!map) {
-      res.status(404).json({
+      res.status(400).json({
         message: "map not found",
       });
       return;
     }
 
+    // let space = await prisma.$transaction(async () => {
+    //   const space = await prisma.space.create({
+    //     data: {
+    //       name: name,
+    //       width: map.width,
+    //       height: map.height,
+    //       userId: req.user.id,
+    //     },
+    //   });
+
+    //   await prisma.spaceElements.createMany({
+    //     data: map.mapElements.map((m) => ({
+    //       elementId: m.id,
+    //       spaceId: space.id,
+    //       x: m.x!,
+    //       y: m.y!,
+    //     })),
+    //   });
+
+    //   await prisma.spaceElements.createMany({
+    //     data: map.mapElements.map((m) => ({
+    //       elementId: m.id,
+
+    //       spaceId: space.id,
+    //       x: m.x!,
+    //       y: m.y!,
+    //     })),
+    //   });
+    //   return space;
+    // });
+
+    // res.status(200).json({
+    //   spaceId: space.id,
+    // });
     let space = await prisma.$transaction(async () => {
+      // Create the new Space
       const space = await prisma.space.create({
         data: {
           name: name,
@@ -56,36 +94,25 @@ export const createSpace = async (
         },
       });
 
-      const validMapElements = await Promise.all(
-        map.mapElements.filter(async (m) => {
-          if (m.elementId) {
-            const elementExists = await prisma.element.findUnique({
-              where: { id: m.elementId },
-            });
-            return !!elementExists;
-          }
-          return false;
-        })
-      );
+      // Create the spaceElements
+      // const spaceElementsData = map.mapElements.map((m) => ({
+      //   elementId: m.elementId!,
+      //   spaceId: space.id,
+      //   x: m.x!,
+      //   y: m.y!,
+      // }));
 
       await prisma.spaceElements.createMany({
-        data: validMapElements.map((m) => ({
-          elementId: m.id,
-          spaceId: space.id,
-          x: m.x!,
-          y: m.y!,
-        })),
+        data: map.mapElements
+          .map((e) => ({
+            spaceId: space.id,
+            elementId: e.elementId!,
+            x: e.x!,
+            y: e.y!,
+          }))
+          .filter((item) => item.elementId !== null),
       });
 
-      await prisma.spaceElements.createMany({
-        data: map.mapElements.map((m) => ({
-          elementId: m.id,
-
-          spaceId: space.id,
-          x: m.x!,
-          y: m.y!,
-        })),
-      });
       return space;
     });
 
@@ -101,40 +128,58 @@ export const createSpace = async (
   }
 };
 
-export const deleteSpace = async (
-  req: Request,
-  res: Response
-): Promise<any> => {
+export const deleteSpace = async (req: any, res: Response): Promise<any> => {
   try {
     const { spaceId } = req.params;
     console.log(spaceId);
 
     if (!spaceId) {
-      return res.status(403).json({
+      return res.status(400).json({
         message: "no spaceid found",
+      });
+    }
+    const spaceCheck = await prisma.space.findUnique({
+      where: {
+        id: spaceId,
+      },
+    });
+
+    if (spaceCheck?.userId != req.user.id) {
+      return res.status(403).json({
+        message: "user not matched",
       });
     }
     const deletedSpace = await prisma.space.delete({
       where: {
         id: spaceId,
       },
+      include: {
+        elements: true,
+      },
     });
     return res.status(200).json({
       message: `${deletedSpace.id} is removed`,
     });
   } catch (error) {
+    console.log(error);
+
     return res.status(400).json({
       message: error,
     });
   }
 };
 
-export const getAllSpaces = async (
-  req: Request,
-  res: Response
-): Promise<any> => {
+export const getAllSpaces = async (req: any, res: Response): Promise<any> => {
+  console.log("owfjne");
+
   try {
-    const spaces = await prisma.space.findMany();
+    console.log("yo yo im here lets check");
+
+    const spaces = await prisma.space.findMany({
+      where: {
+        userId: req.user.id,
+      },
+    });
 
     if (!spaces) {
       return res.status(404).json({
@@ -142,9 +187,16 @@ export const getAllSpaces = async (
       });
     }
     return res.status(200).json({
-      spaces: spaces,
+      spaces: spaces.map((s) => ({
+        id: s.id,
+        name: s.name,
+        thumbnail: s.thumbnail,
+        dimensions: `${s.width}x${s.height}`,
+      })),
     });
   } catch (error) {
+    console.log(error);
+
     return res.status(400).json({
       message: error,
     });
@@ -175,7 +227,7 @@ export const getSpace = async (req: Request, res: Response): Promise<any> => {
 
     if (!space) {
       return res.status(404).json({
-        message: "no space found for such spaceId",
+        spaces: [],
       });
     }
 

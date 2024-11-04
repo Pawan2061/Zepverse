@@ -15,6 +15,13 @@ export const createMap = async (
     }
     const [widthStr, heightStr] = dimensions.split("x");
     console.log("reaching here");
+    console.log(defaultElements);
+
+    console.log(
+      defaultElements.map((df) => {
+        console.log(df.id);
+      })
+    );
 
     const map = await prisma.map.create({
       data: {
@@ -31,9 +38,10 @@ export const createMap = async (
           })),
         },
       },
+      include: {
+        mapElements: true,
+      },
     });
-
-    console.log(map, "is formed");
 
     if (!map) {
       return res.status(404).json({
