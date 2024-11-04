@@ -15,7 +15,10 @@ wss.on("connection", async (ws: WebSocket) => {
     const data = JSON.parse(message.toString());
 
     const { type } = data;
-
-    await HandleEvent(type, data.payload, ws);
+    if (type == "join") {
+      await HandleEvent(type, data.payload, ws);
+    } else {
+      await HandleEvent(type, data.payload, ws);
+    }
   });
 });

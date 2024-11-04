@@ -15,7 +15,7 @@ export async function HandleEvent(
 
     case "move":
       const moveData = await handleMove(payload);
-      console.log(moveData, "move data here");
+
       ws.send(JSON.stringify(moveData));
 
       return;

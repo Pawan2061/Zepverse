@@ -161,8 +161,6 @@ export const getBulkAvatars = async (
         .split(",")
         .map((id: string) => id.trim());
 
-      console.log(idsParam, "new ids");
-
       try {
         const userMetadata = await prisma.user.findMany({
           where: {

@@ -9,13 +9,10 @@ export class SpaceManager {
 
   private ws: WebSocket | null = null;
   private constructor() {
-    console.log("new instance");
     this.spaces = new Map();
   }
   static getInstance() {
     if (!this.instance) {
-      console.log("hi pawan");
-
       SpaceManager.instance = new SpaceManager();
     }
     return SpaceManager.instance;
@@ -40,5 +37,9 @@ export class SpaceManager {
     this.spaces.get(spaceId)?.map((user) => {
       this.ws?.send(JSON.stringify(`${user.username} has joined`));
     });
+  }
+
+  closeServer() {
+    this.ws?.close();
   }
 }

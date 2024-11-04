@@ -3,21 +3,23 @@ import { getSpaceAndUser } from "./dbActions";
 import { getDimension } from "./dim";
 import { SpaceManager } from "./RoomSpace";
 const spaceInstance = SpaceManager.getInstance();
+const Payload = {
+  x: 2,
+  y: 3,
+};
 export async function handleJoin(data: JoinPayload) {
   try {
     const { space, user } = await getSpaceAndUser(data);
     if (!user && !space) {
+      spaceInstance.closeServer();
       return {
         type: "join_failed",
         message: "user cannot join",
       };
     } else {
       const users = spaceInstance.addUserToSpace(user!, space!.id);
-      console.log("inside broadcasting");
 
-      const response = spaceInstance.broadCastToUsers(users, space!.id);
-      console.log(response, "response is here");
-      console.log("outside broadcasting");
+      spaceInstance.broadCastToUsers(users, space!.id);
 
       const { width, height } = (await getDimension(space)) as Dimension;
 
@@ -38,6 +40,10 @@ export async function handleJoin(data: JoinPayload) {
 }
 
 export async function handleMove(payload: any) {
+  const xMove = Payload.x;
+  const yMove = Payload.y;
+  
+
   return {
     type: "moving",
     message: "moving in the server",

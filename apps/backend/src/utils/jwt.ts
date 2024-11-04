@@ -65,7 +65,7 @@ export const checkAdmin = async (
   console.log(user, "is here");
 
   if (user?.role != "Admin") {
-    res.status(200).json({ msg: "No sufficient credentials" });
+    res.status(404).json({ msg: "No sufficient credentials" });
     return;
   }
   console.log("he is the admin");
