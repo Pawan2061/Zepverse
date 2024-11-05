@@ -9,14 +9,16 @@ export async function HandleEvent(
 ) {
   switch (eventType) {
     case "join":
-      const joinData = await handleJoin(payload);
-      ws.send(JSON.stringify(joinData));
+      // const joinData = await handleJoin(payload);
+      // console.log(joinData, "join data here");
+
+      // ws.send(JSON.stringify(joinData));
       return;
 
     case "move":
-      const moveData = await handleMove(payload);
+      // const moveData = await handleMove(payload);
 
-      ws.send(JSON.stringify(moveData));
+      // ws.send(JSON.stringify(moveData));
 
       return;
   }

@@ -1,16 +1,15 @@
-import { User } from "../interface";
+import { Message, User, WebsocketUser } from "../interface";
 import { WebSocket } from "ws";
 
 export class SpaceManager {
   private static instance: SpaceManager;
-  spaces: Map<string, User[]>;
-  private xdim = 0;
-  private ydim = 0;
-
-  private ws: WebSocket | null = null;
+  spaces: Map<string, WebsocketUser[]>;
+  private connectedUser: User[];
   private constructor() {
     this.spaces = new Map();
+    this.connectedUser = [];
   }
+
   static getInstance() {
     if (!this.instance) {
       SpaceManager.instance = new SpaceManager();
@@ -18,28 +17,56 @@ export class SpaceManager {
     return SpaceManager.instance;
   }
 
-  addUserToSpace(user: User, spaceId: string) {
-    const existingUsers = this.spaces.get(spaceId) || [];
-
-    if (!existingUsers.find((u) => u.id === user.id)) {
-      existingUsers.push(user);
-      this.spaces.set(spaceId, existingUsers);
+  addUserToSpace(user: User, spaceId: string, ws: WebsocketUser) {
+    if (!this.spaces.has(spaceId)) {
+      this.spaces.set(spaceId, []);
     }
 
-    return existingUsers;
+    const connections = this.spaces.get(spaceId);
+    if (connections && !connections.includes(ws)) {
+      connections.push(ws);
+
+      console.log(`${user.username} added to space ${spaceId}`);
+    }
+    this.connectedUser.push(user);
+
+    return this.connectedUser;
   }
 
-  broadCastToUsers(users: User[], spaceId: string) {
-    if (!this.spaces.has(spaceId)) {
+  broadCastToUsers(sender: User, spaceId: string, message: any) {
+    const connections = this.spaces.get(spaceId);
+    if (!connections) {
       return;
     }
 
-    this.spaces.get(spaceId)?.map((user) => {
-      this.ws?.send(JSON.stringify(`${user.username} has joined`));
+    console.log("Broadcasting inside the space");
+    console.log(message.data);
+
+    connections.forEach((ws) => {
+      ws.send(JSON.stringify(message));
     });
   }
 
+  removeUserFromSpace(ws: WebsocketUser, spaceId: string) {
+    const connections = this.spaces.get(spaceId);
+    if (connections) {
+      const index = connections.indexOf(ws);
+      if (index !== -1) {
+        connections.splice(index, 1);
+        ws.close();
+        console.log(`WebSocket connection removed from space ${spaceId}`);
+
+        if (connections.length === 0) {
+          this.spaces.delete(spaceId);
+        }
+      }
+    }
+  }
+
   closeServer() {
-    this.ws?.close();
+    this.spaces.forEach((connections) => {
+      connections.forEach((ws) => ws.close());
+    });
+    this.spaces.clear();
   }
 }

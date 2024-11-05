@@ -1,15 +1,19 @@
-import { Dimension, JoinPayload, JoinRequest } from "../interface";
+import {
+  Dimension,
+  JoinPayload,
+  JoinRequest,
+  WebsocketUser,
+} from "../interface";
 import { getSpaceAndUser } from "./dbActions";
 import { getDimension } from "./dim";
+import WebSocket from "ws";
 import { SpaceManager } from "./RoomSpace";
 const spaceInstance = SpaceManager.getInstance();
-const Payload = {
-  x: 2,
-  y: 3,
-};
-export async function handleJoin(data: JoinPayload) {
+
+export async function handleJoin(data: JoinPayload, ws: WebsocketUser) {
   try {
     const { space, user } = await getSpaceAndUser(data);
+
     if (!user && !space) {
       spaceInstance.closeServer();
       return {
@@ -17,35 +21,58 @@ export async function handleJoin(data: JoinPayload) {
         message: "user cannot join",
       };
     } else {
-      const users = spaceInstance.addUserToSpace(user!, space!.id);
+      const users = spaceInstance.addUserToSpace(user!, space!.id, ws);
+      console.log(users);
 
-      spaceInstance.broadCastToUsers(users, space!.id);
-
+      const userInfos = users!.map((ws) => ({
+        id: ws.id,
+        username: ws.username,
+        x: ws.x,
+        y: ws.y,
+      }));
+      console.log(userInfos);
       const { width, height } = (await getDimension(space)) as Dimension;
 
-      return {
+      const message = {
         type: "space-joined",
         payload: {
-          spawn: {
-            x: width,
-            y: height,
-          },
           users: users,
+          x: 1,
+          y: 2,
         },
       };
+
+      spaceInstance.broadCastToUsers(user!, space!.id, message);
+
+      // return {
+      //   type: "space-joined",
+      //   payload: {
+      //     spawn: {
+      //       x: width,
+      //       y: height,
+      //     },
+      //     users: users,
+      //   },
+      // };
     }
   } catch (error) {
     console.log(error);
   }
 }
 
-export async function handleMove(payload: any) {
-  const xMove = Payload.x;
-  const yMove = Payload.y;
-  
+export async function handleMove(payload: any, ws: WebSocket) {
+  const xMove = payload.x;
+  const yMove = payload.y;
 
-  return {
-    type: "moving",
-    message: "moving in the server",
+  const moveData = {
+    type: "space-joined",
+    payload: {
+      spawn: {
+        x: 12,
+        y: 21,
+      },
+      users: [],
+    },
   };
+  ws.send(JSON.stringify(moveData));
 }
