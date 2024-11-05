@@ -17,7 +17,7 @@ export const addElement = async (
     if (!imageUrl || !width || !height || !body) {
       console.log("error here");
 
-      return res.status(404).json({
+      return res.status(403).json({
         message: "insufficient credentials",
       });
     }
@@ -38,7 +38,12 @@ export const addElement = async (
     }
 
     return res.status(200).json({
-      element: element,
+      id: element.id,
+      imageUrl: element.imageUrl,
+      height: element.height,
+      width: element.width,
+      static: element.static,
+      name: element.name,
     });
   } catch (error) {
     console.log(error);
@@ -58,7 +63,7 @@ export const updateElement = async (
     const { imageUrl } = req.body;
 
     if (!elementId) {
-      return res.status(404).json({
+      res.status(404).json({
         message: "credentials not found",
       });
     }
@@ -68,7 +73,7 @@ export const updateElement = async (
       },
     });
     if (!element) {
-      return res.status(404).json({
+      res.status(404).json({
         message: "not found",
       });
     }
@@ -81,11 +86,11 @@ export const updateElement = async (
         imageUrl: imageUrl,
       },
     });
-    return res.status(200).json({
+    res.status(200).json({
       message: `${updatedImage.name} is updated`,
     });
   } catch (error) {
-    return res.status(400).json({
+    res.status(400).json({
       message: error,
     });
   }
@@ -100,11 +105,11 @@ export const spaceElement = async (
 
     const { elementId, spaceId, x, y } = req.body;
 
-    if (!elementId || !spaceId || !x || !y) {
-      return res.status(404).json({
-        message: "credentials unavailable",
-      });
-    }
+    // if (!elementId || !spaceId || !x || !y) {
+    //   res.status(400).json({
+    //     message: "credentials unavailable",
+    //   });
+    // }
 
     const existingSpace = await prisma.space.findUnique({
       where: {
@@ -114,12 +119,12 @@ export const spaceElement = async (
 
     const check = await measureDimensions(x, y, existingSpace!);
     if (!check) {
-      res.status(403).json({
+      return res.status(400).json({
         message: "not allowed to place it",
       });
     }
     if (!existingSpace) {
-      res.status(403).json({
+      return res.status(403).json({
         message: "not allowed to place it",
       });
     }
@@ -151,8 +156,10 @@ export const deleteSpaceElement = async (
   req: Request,
   res: Response
 ): Promise<any> => {
+  console.log("inside delete space lement");
+
   try {
-    const elementId = req.params.id;
+    const elementId = req.body.id;
     if (!elementId) {
       return res.status(404).json({
         message: "credentials not found",
@@ -161,7 +168,7 @@ export const deleteSpaceElement = async (
 
     const deletedElement = await prisma.spaceElements.delete({
       where: {
-        elementId: elementId,
+        id: elementId,
       },
     });
 

@@ -26,6 +26,7 @@ export const createSpace = async (
           userId: id,
         },
       });
+
       res.status(200).json({
         spaceId: newSpace.id,
       });
@@ -41,6 +42,7 @@ export const createSpace = async (
         height: true,
       },
     });
+    console.log(map, "my mapo i shere bro");
 
     if (!map) {
       res.status(400).json({
@@ -88,8 +90,8 @@ export const createSpace = async (
       const space = await prisma.space.create({
         data: {
           name: name,
-          width: map.width,
-          height: map.height,
+          width: width,
+          height: height,
           userId: req.user.id,
         },
       });
@@ -101,6 +103,8 @@ export const createSpace = async (
       //   x: m.x!,
       //   y: m.y!,
       // }));
+
+      console.log(map.mapElements);
 
       await prisma.spaceElements.createMany({
         data: map.mapElements
@@ -121,6 +125,8 @@ export const createSpace = async (
     });
     return;
   } catch (error) {
+    console.log(error);
+
     res.status(400).json({
       message: error,
     });
@@ -143,6 +149,13 @@ export const deleteSpace = async (req: any, res: Response): Promise<any> => {
         id: spaceId,
       },
     });
+
+    if (!spaceCheck) {
+      return res.status(400).json({
+        message: "not found",
+      });
+    }
+    console.log("inside spacedelete ");
 
     if (spaceCheck?.userId != req.user.id) {
       return res.status(403).json({
@@ -205,10 +218,12 @@ export const getAllSpaces = async (req: any, res: Response): Promise<any> => {
 
 export const getSpace = async (req: Request, res: Response): Promise<any> => {
   try {
+    console.log("going to th enext space thing");
+
     const { spaceId } = req.params;
 
     if (!spaceId) {
-      return res.status(404).json({
+      return res.status(400).json({
         message: "no credentials found",
       });
     }
@@ -226,14 +241,20 @@ export const getSpace = async (req: Request, res: Response): Promise<any> => {
     });
 
     if (!space) {
-      return res.status(404).json({
+      return res.status(400).json({
         spaces: [],
       });
     }
 
+    console.log(space, "bfiuebfneiofdneoiwdnfbebuj");
+
     return res.status(200).json({
       dimensions: `${space.width}x${space.height}`,
-      spaceElements: space.elements,
+      elements: space.elements.map((m) => ({
+        id: m.id,
+        x: m.x,
+        y: m.y,
+      })),
     });
   } catch (error) {
     return res.status(400).json({

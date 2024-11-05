@@ -66,13 +66,13 @@ model Map {
 }
 
 model mapElements {
-  id        String   @id @unique @default(cuid())
+  id        String  @id @unique @default(cuid())
   mapId     String
-  elementId String?
+  elementId String
   x         Int?
   y         Int?
-  Element   Element? @relation(fields: [elementId], references: [id])
-  Map       Map      @relation(fields: [mapId], references: [id])
+  Map       Map     @relation(fields: [mapId], references: [id])
+  Element   Element @relation(fields: [elementId], references: [id])
 }
 
 model Avatar {

@@ -8,20 +8,17 @@ export const createMap = async (
 ): Promise<any> => {
   try {
     const { dimensions, thumbnail, name, defaultElements } = req.body;
+
+    const data = JSON.parse(JSON.stringify(req.body));
+    console.log(data, "m data i shere");
+
     if (!dimensions || !thumbnail || !name || !defaultElements) {
       return res.status(404).json({
         message: "credentials are unavailable",
       });
     }
-    const [widthStr, heightStr] = dimensions.split("x");
-    console.log("reaching here");
-    console.log(defaultElements);
 
-    console.log(
-      defaultElements.map((df) => {
-        console.log(df.id);
-      })
-    );
+    const [widthStr, heightStr] = dimensions.split("x");
 
     const map = await prisma.map.create({
       data: {
@@ -32,15 +29,31 @@ export const createMap = async (
 
         mapElements: {
           create: defaultElements.map((element) => ({
-            elementId: element.id,
             x: element.x,
             y: element.y,
+            Element: {
+              create: {
+                name: element.elementId,
+                width: 5,
+                height: 5,
+              },
+            },
           })),
         },
       },
       include: {
-        mapElements: true,
+        mapElements: {
+          include: {
+            Element: true,
+          },
+        },
       },
+    });
+    map.mapElements.map((m) => {
+      console.log(m.x);
+      console.log(m.elementId);
+
+      console.log(m.y);
     });
 
     if (!map) {
@@ -52,6 +65,8 @@ export const createMap = async (
       id: map.id,
     });
   } catch (error) {
+    console.log(error);
+
     return res.status(400).json({
       error: error,
     });

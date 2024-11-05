@@ -8,6 +8,7 @@ import {
   updateElement,
 } from "../controllers/elementController";
 import { checkAdmin, verifyToken } from "../utils/jwt";
+import { deleteSpace } from "../controllers/spaceController";
 
 elementRouter.post("/admin/element", [verifyToken, checkAdmin], addElement);
 elementRouter.put(
@@ -17,5 +18,8 @@ elementRouter.put(
 );
 
 elementRouter.post("/space/element", verifyToken, spaceElement);
-elementRouter.delete("/space/element/:id", verifyToken, deleteSpaceElement);
+elementRouter.delete("/space/element", verifyToken, deleteSpaceElement);
+
 elementRouter.get("/elements", getAllElements);
+
+elementRouter.delete("/space/:spaceId", verifyToken, deleteSpace);

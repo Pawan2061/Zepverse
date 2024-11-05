@@ -9,6 +9,4 @@ import {
 import { verifyToken } from "../utils/jwt";
 spaceRouter.post("/space", verifyToken, createSpace);
 spaceRouter.get("/space/all", verifyToken, getAllSpaces);
-spaceRouter.get("/space/:spaceId", getSpace);
-
-spaceRouter.delete("/space/:spaceId", verifyToken, deleteSpace);
+spaceRouter.get("/space/:spaceId", verifyToken, getSpace);

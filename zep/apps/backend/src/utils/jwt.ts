@@ -43,8 +43,6 @@ export const verifyToken = async (
 
       req.user = decodedToken;
 
-      console.log("going to the next one");
-
       next();
     }
   );
@@ -62,7 +60,7 @@ export const checkAdmin = async (
   });
 
   if (user?.role != "admin") {
-    res.status(404).json({ msg: "No sufficient credentials" });
+    res.status(403).json({ msg: "No sufficient credentials" });
     return;
   }
 

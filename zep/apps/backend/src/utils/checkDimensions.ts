@@ -1,19 +1,18 @@
 import { SpaceDimension } from "../interface/spaceInterface";
 
 export const measureDimensions = async (
-  width: number,
-  height: number,
+  x: number,
+  y: number,
   space: SpaceDimension
 ) => {
   try {
-    if (
-      width < 0 ||
-      height < 0 ||
-      width < space.width ||
-      height < space.height!
-    ) {
+    if (x < 0 || y < 0 || x > space.width || y > space.height!) {
       return false;
     }
     return true;
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+
+    return error;
+  }
 };

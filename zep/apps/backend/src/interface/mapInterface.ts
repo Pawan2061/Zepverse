@@ -1,5 +1,5 @@
 export interface DefaultElement {
-  id: string;
+  elementId: string;
   x: number;
   y: number;
 }
