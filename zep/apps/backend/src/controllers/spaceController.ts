@@ -21,7 +21,6 @@ export const createSpace = async (
         data: {
           name: name,
           height: height,
-          // @ts-ignore
           width: width,
           userId: id,
         },

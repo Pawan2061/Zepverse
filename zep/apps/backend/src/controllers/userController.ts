@@ -175,7 +175,7 @@ export const getBulkAvatars = async (
           },
         });
         return res.status(200).json({
-          avatars: userMetadata.map((user) => ({
+          avatars: userMetadata.map((user: any) => ({
             userId: user.id,
             imageUrl: user.avatar,
           })),
