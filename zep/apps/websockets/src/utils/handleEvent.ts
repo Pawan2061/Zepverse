@@ -1,25 +1,25 @@
-import WebSocket from "ws";
-import { handleJoin, handleMove } from "./process";
-import { JoinPayload } from "../interface";
+// import WebSocket from "ws";
+// import { handleJoin, handleMove } from "./process";
+// import { JoinPayload } from "../interface";
 
-export async function HandleEvent(
-  eventType: string,
-  payload: JoinPayload,
-  ws: WebSocket
-) {
-  switch (eventType) {
-    case "join":
-      // const joinData = await handleJoin(payload);
-      // console.log(joinData, "join data here");
+// export async function HandleEvent(
+//   eventType: string,
+//   payload: JoinPayload,
+//   ws: WebSocket
+// ) {
+//   switch (eventType) {
+//     case "join":
+//       // const joinData = await handleJoin(payload);
+//       // console.log(joinData, "join data here");
 
-      // ws.send(JSON.stringify(joinData));
-      return;
+//       // ws.send(JSON.stringify(joinData));
+//       return;
 
-    case "move":
-      // const moveData = await handleMove(payload);
+//     case "move":
+//       // const moveData = await handleMove(payload);
 
-      // ws.send(JSON.stringify(moveData));
+//       // ws.send(JSON.stringify(moveData));
 
-      return;
-  }
-}
+//       return;
+//   }
+// }

@@ -1,72 +1,107 @@
-import { Message, User, WebsocketUser } from "../interface";
-import { WebSocket } from "ws";
+// import { Message, User, UsersSocket, WebsocketUser } from "../interface";
+// import { WebSocket } from "ws";
 
-export class SpaceManager {
-  private static instance: SpaceManager;
-  spaces: Map<string, WebsocketUser[]>;
-  private connectedUser: User[];
-  private constructor() {
-    this.spaces = new Map();
-    this.connectedUser = [];
-  }
+// export class SpaceManager {
+//   private static instance: SpaceManager;
+//   spaces: Map<string, UsersSocket[]>;
+//   private connectedUser: User[];
+//   // private ws: WebSocket;
+//   private constructor() {
+//     this.spaces = new Map();
+//     this.connectedUser = [];
+//   }
 
-  static getInstance() {
-    if (!this.instance) {
-      SpaceManager.instance = new SpaceManager();
-    }
-    return SpaceManager.instance;
-  }
+//   static getInstance() {
+//     if (!this.instance) {
+//       SpaceManager.instance = new SpaceManager();
+//     }
+//     return SpaceManager.instance;
+//   }
 
-  addUserToSpace(user: User, spaceId: string, ws: WebsocketUser) {
-    if (!this.spaces.has(spaceId)) {
-      this.spaces.set(spaceId, []);
-    }
+//   // addUserToSpace(user: User, spaceId: string, ws: WebsocketUser) {
+//   //   if (!this.spaces.has(spaceId)) {
+//   //     this.spaces.set(spaceId, []);
+//   //   }
 
-    const connections = this.spaces.get(spaceId);
-    if (connections && !connections.includes(ws)) {
-      connections.push(ws);
+//   //   const connections = this.spaces.get(spaceId);
+//   //   if (connections && !connections.includes(ws)) {
+//   //     connections.push(ws);
 
-      console.log(`${user.username} added to space ${spaceId}`);
-    }
-    this.connectedUser.push(user);
+//   //     console.log(`${user.username} added to space ${spaceId}`);
+//   //   }
+//   //   this.connectedUser.push(user);
 
-    return this.connectedUser;
-  }
+//   //   return connections!.map(({ id, username, x, y }) => ({
+//   //     id,
+//   //     username,
+//   //     x,
+//   //     y,
+//   //   }));
+//   // }
+//   addUserToSpace(user: User, spaceId: string, ws: WebSocket) {
+//     if (!this.spaces.has(spaceId)) {
+//       this.spaces.set(spaceId, []);
+//     }
+//     const users = this.spaces.get(user.id);
 
-  broadCastToUsers(sender: User, spaceId: string, message: any) {
-    const connections = this.spaces.get(spaceId);
-    if (!connections) {
-      return;
-    }
+//     if (!users) {
+//       return;
+//     }
 
-    console.log("Broadcasting inside the space");
-    console.log(message.data);
+//     const check = users.some((ws) => ws.id === user.id);
 
-    connections.forEach((ws) => {
-      ws.send(JSON.stringify(message));
-    });
-  }
+//     if (users && !check) {
+//       users.push(user);
+//     }
+//     console.log(users);
 
-  removeUserFromSpace(ws: WebsocketUser, spaceId: string) {
-    const connections = this.spaces.get(spaceId);
-    if (connections) {
-      const index = connections.indexOf(ws);
-      if (index !== -1) {
-        connections.splice(index, 1);
-        ws.close();
-        console.log(`WebSocket connection removed from space ${spaceId}`);
+//     // if (!this.spaces.has(spaceId)) {
+//     //   this.spaces.set(spaceId, []);
+//     // }
+//     // const connections = this.spaces.get(spaceId);
+//     // if (
+//     //   connections &&
+//     //   !connections.some((connection) => connection.id === ws.id)
+//     // ) {
+//     //   console.log(ws);
+//     //   connections.push(ws.id);
+//     // }
+//     // if (
+//     //   !this.connectedUser.some((connectedUser) => connectedUser.id === user.id)
+//     // ) {
+//     //   this.connectedUser.push(user);
+//     // }
+//     // return this.connectedUser;
+//   }
 
-        if (connections.length === 0) {
-          this.spaces.delete(spaceId);
-        }
-      }
-    }
-  }
+//   broadCastToUsers(sender: User, spaceId: string, message: any) {
+//     // const connections = this.spaces.get(spaceId);
+//     // if (!connections) {
+//     //   return;
+//     // }
+//     // connections.forEach((ws) => {
+//     //   ws.send(JSON.stringify(message));
+//     // });
+//   }
 
-  closeServer() {
-    this.spaces.forEach((connections) => {
-      connections.forEach((ws) => ws.close());
-    });
-    this.spaces.clear();
-  }
-}
+//   removeUserFromSpace(ws: WebsocketUser, spaceId: string) {
+//     // const connections = this.spaces.get(spaceId);
+//     // if (connections) {
+//     //   const index = connections.indexOf(ws);
+//     //   if (index !== -1) {
+//     //     connections.splice(index, 1);
+//     //     ws.close();
+//     //     if (connections.length === 0) {
+//     //       this.spaces.delete(spaceId);
+//     //     }
+//     //   }
+//     // }
+//   }
+
+//   closeServer() {
+//     // this.spaces.forEach((connections) => {
+//     //   connections.forEach((ws) => ws.close());
+//     // });
+//     this.spaces.clear();
+//   }
+// }

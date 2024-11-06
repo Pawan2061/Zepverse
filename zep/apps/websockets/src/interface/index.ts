@@ -55,8 +55,13 @@ export type Message = {
   type: string;
   payload: {
     spawn: { x: number; y: number };
-    users: Map<string, WebSocket> | undefined; // Allow undefined
+    users: any; // Allow undefined
   };
+};
+export type UserJoinMessage = {
+  type: string;
+
+  payload: { x: number; y: number; userId: string };
 };
 
 export interface WebsocketUser extends WebSocket {
@@ -67,10 +72,11 @@ export interface WebsocketUser extends WebSocket {
   y: number;
 }
 
-export interface WebsocketUsers extends WebSocket {
+export interface UsersSocket {
   id: string;
   username: string;
   password: string;
   x: number;
   y: number;
+  ws: WebSocket;
 }

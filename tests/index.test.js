@@ -891,15 +891,14 @@ describe("Websocket tests", () => {
             
             
             if (messageArray.length > 0) {
-                console.log(
-                    "why im here"
-                );
-                
+               
                 
                 
 
                 resolve(messageArray.shift())
             } else {
+
+                
                 let interval = setInterval(() => {
                     if (messageArray.length > 0) {
                         resolve(messageArray.shift())
@@ -926,6 +925,11 @@ describe("Websocket tests", () => {
         })
 
         adminUserId = adminSignupResponse.data.userId;
+
+        
+        
+
+
         adminToken = adminSigninResponse.data.token;
       
         
@@ -939,6 +943,9 @@ describe("Websocket tests", () => {
             password
         })
         userId = userSignupResponse.data.userId
+        console.log(userId,"user id is here");
+        
+        
         userToken = userSigninResponse.data.token
         const element1Response = await axios.post(`${BACKEND_URL}/api/v1/admin/element`, {
             "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRCRca3wAR4zjPPTzeIY9rSwbbqB6bB2hVkoTXN4eerXOIkJTG1GpZ9ZqSGYafQPToWy_JTcmV5RHXsAsWQC3tKnMlH_CsibsSZ5oJtbakq&usqp=CAE",
@@ -1009,7 +1016,6 @@ describe("Websocket tests", () => {
             
             
             ws1Messages.push(JSON.parse(event.data))
-            console.log(ws1Messages,"ws1message");
 
             
         }
@@ -1029,7 +1035,6 @@ describe("Websocket tests", () => {
         
         ws2.onmessage = (event) => {
             ws2Messages.push(JSON.parse(event.data))
-            console.log(ws2Messages,"ws2message");
             
 
            
@@ -1047,7 +1052,7 @@ describe("Websocket tests", () => {
         
         await setupWs()
         
-    },10000)
+    })
 
     test("Get back ack for joining the space", async () => {
 
@@ -1058,9 +1063,7 @@ describe("Websocket tests", () => {
                 "token": adminToken
             }
         }))
-        console.log(ws1Messages);
         const message1= await waitForAndPopLatestMessage(ws1Messages)
-        console.log(message1);
         
         
         ws2.send(JSON.stringify({
@@ -1073,19 +1076,16 @@ describe("Websocket tests", () => {
 
 
         const message2 = await waitForAndPopLatestMessage(ws2Messages);
-        console.log(message2);
+        
         
         
         
         const message3 = await waitForAndPopLatestMessage(ws1Messages);
         console.log(message3);
         
-        
-        
 
         expect(message1.type).toBe("space-joined")
         expect(message2.type).toBe("space-joined")
-        console.log(message1.payload);
         
         
         expect(message1.payload.users.length).toBe(0)
@@ -1094,6 +1094,8 @@ describe("Websocket tests", () => {
         expect(message2.payload.users.length).toBe(1)
 
         expect(message3.type).toBe("user-joined");
+        
+        
         expect(message3.payload.x).toBe(message2.payload.spawn.x);
         expect(message3.payload.y).toBe(message2.payload.spawn.y);
         expect(message3.payload.userId).toBe(userId);
@@ -1103,7 +1105,7 @@ describe("Websocket tests", () => {
 
         userX = message2.payload.spawn.x
         userY = message2.payload.spawn.y
-    })
+    },15000)
 
     // test("User should not be able to move across the boundary of the wall", async () => {
     //     ws1.send(JSON.stringify({

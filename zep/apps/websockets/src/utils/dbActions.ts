@@ -2,7 +2,7 @@ import prisma from "@repo/db";
 import { JoinPayload } from "../interface";
 import jwt from "jsonwebtoken";
 
-export const getSpaceAndUser = async (payload: JoinPayload) => {
+export const getSpaceAndUser = async (payload: JoinPayload): Promise<any> => {
   try {
     if (!payload.spaceId) {
       return {
@@ -19,10 +19,11 @@ export const getSpaceAndUser = async (payload: JoinPayload) => {
     const user = jwt.verify(payload.token, "pawan1", (err, decoded) => {
       if (err) {
         console.error("JWT verification failed:", err);
-        throw new Error("Jwt verification failed");
+        return err;
       }
       return decoded;
     });
+    // const user = jwt.verify(payload.token, "pawan1");
 
     return { space, user };
   } catch (error) {
