@@ -1,50 +1,15 @@
-// import express from "express";
-// import { WebSocket, WebSocketServer } from "ws";
-// import { HandleEvent } from "./utils/handleEvent";
-// import jwt from "jsonwebtoken";
-// import { SpaceManager } from "./utils/RoomSpace";
-// import { handleJoin, handleMove } from "./utils/process";
-// import { WebsocketUser } from "./interface";
-// const app = express();
-
-// const httpServer = app.listen(8080);
-// const wss = new WebSocketServer({
-//   server: httpServer,
-// });
-
-// wss.on("connection", async (ws: WebSocket) => {
-//   console.log("connected");
-
-//   ws.on("message", async (message) => {
-//     const data = JSON.parse(message.toString());
-
-//     const { type } = data;
-
-//     switch (type) {
-//       case "move":
-//         handleMove(data.payload, ws);
-//       case "join":
-//         handleJoin(data.payload, ws);
-//     }
-//   });
-// });
-
-import { WebSocket, WebSocketServer } from "ws";
-import express from "express";
+import { WebSocketServer } from "ws";
 import {
-  JoinPayload,
-  Message,
-  UserJoinMessage,
+  LeaveType,
+  MovementDone,
+  MovementRejected,
+  MovePayload,
+  Mysocket,
   UsersSocket,
-  WebsocketUser,
 } from "./interface";
+import express from "express";
+import { JoinPayload, Message, UserJoinMessage } from "./interface";
 import { getSpaceAndUser } from "./utils/dbActions";
-interface Mysocket extends WebSocket {
-  x?: number;
-  y?: number;
-  userId?: string;
-  spaceId: string;
-}
 
 let spaces = new Map<string, Mysocket[]>();
 
@@ -67,13 +32,16 @@ async function handleJoin(data: JoinPayload, ws: Mysocket) {
     spaces.set(data.spaceId, []);
   }
 
+  ws.userId = user.id;
+  ws.spaceId = data.spaceId;
   const spaceUsers = spaces.get(data.spaceId);
   const check = spaceUsers?.some((su) => su.userId === user.id);
 
-  ws.userId = user.id;
-  ws.x = 0;
-  ws.y = 0;
-  ws.spaceId = data.spaceId;
+  const x = Math.floor(Math.random() * space.width);
+  const y = Math.floor(Math.random() * space.height);
+
+  ws.x = x;
+  ws.y = y;
 
   if (spaceUsers && !check) {
     spaceUsers.push(ws);
@@ -85,8 +53,8 @@ async function handleJoin(data: JoinPayload, ws: Mysocket) {
     type: "space-joined",
     payload: {
       spawn: {
-        x: ws.x,
-        y: ws.y,
+        x: x,
+        y: y,
       },
       users: spaces
         .get(space.id)
@@ -94,24 +62,12 @@ async function handleJoin(data: JoinPayload, ws: Mysocket) {
         .map((u) => ({ id: userId })),
     },
   };
-  const broadCastMessage: Message = {
-    type: "user-joined",
-    payload: {
-      spawn: {
-        x: ws.x,
-        y: ws.y,
-      },
-      users: spaces
-        .get(space.id)
-        ?.filter((x) => x.userId !== user.id)
-        .map((u) => ({ id: userId })),
-    },
-  };
+
   const userjoin: UserJoinMessage = {
     type: "user-joined",
     payload: {
-      x: ws.x,
-      y: ws.y,
+      x: x,
+      y: y,
       userId: userId,
     },
   };
@@ -123,23 +79,94 @@ async function handleJoin(data: JoinPayload, ws: Mysocket) {
       ws.send(JSON.stringify(userjoin));
     }
   });
-
-  // await broadCast(ws, space.id, userjoin);
 }
 
-async function broadCast(
+async function Check(
   ws: Mysocket,
-  spaceId: string,
-  message: UserJoinMessage
-) {
-  const users = spaces.get(spaceId);
-
-  users?.forEach((ws) => {
-    ws.send(JSON.stringify(message));
+  xMovement: number,
+  yMovement: number
+): Promise<any> {
+  const check = spaces.get(ws.spaceId)?.some((ws) => {
+    if (ws.x == xMovement && ws.y == yMovement) {
+      return false;
+    }
+    return true;
   });
 }
-async function handleMove(data: JoinPayload, ws: Mysocket) {}
 
+async function handleMove(data: MovePayload, ws: Mysocket) {
+  console.log(ws, "im here");
+  console.log(data.x);
+  console.log(data.y);
+
+  const xMovement = data.x;
+
+  const yMovement = data.y;
+
+  const xDistance = Math.abs(xMovement - ws.x!);
+  const yDistance = Math.abs(yMovement - ws.y!);
+
+  const check = await Check(ws, xMovement, yMovement);
+  console.log(xDistance, yDistance);
+
+  if (
+    (xDistance == 0 && yDistance == 1) ||
+    (yDistance == 0 && xDistance == 1)
+  ) {
+    const message: MovementDone = {
+      type: "movement",
+      payload: {
+        x: xMovement,
+        y: yMovement,
+        userId: ws.userId!,
+      },
+    };
+    ws.x = xMovement;
+    ws.y = yMovement;
+
+    console.log("successfull");
+
+    spaces.get(ws.spaceId)?.forEach((ws) => {
+      ws.send(JSON.stringify(message));
+    });
+
+    return;
+  }
+
+  const message: MovementRejected = {
+    type: "movement-rejected",
+    payload: {
+      x: ws.x!,
+      y: ws.y!,
+    },
+  };
+
+  ws.send(JSON.stringify(message));
+}
+
+async function handleClose(ws: Mysocket) {
+  const message: LeaveType = {
+    type: "user-left",
+    payload: {
+      userId: ws.userId!,
+    },
+  };
+  const existingUsers = spaces.get(ws.spaceId);
+  if (existingUsers) {
+    const finalUsers = existingUsers.filter((u) => u.userId !== ws.userId);
+    if (finalUsers.length > 0) {
+      spaces.set(ws.spaceId, finalUsers);
+    } else {
+      spaces.delete(ws.spaceId);
+    }
+
+    spaces.delete(ws.userId!);
+
+    finalUsers.forEach((user) => {
+      user.send(JSON.stringify(message));
+    });
+  }
+}
 wss.on("connection", async (ws: Mysocket) => {
   ws.on("message", async (message) => {
     const data = JSON.parse(message.toString());
@@ -155,5 +182,29 @@ wss.on("connection", async (ws: Mysocket) => {
         handleMove(data.payload, ws);
         break;
     }
+  });
+
+  ws.on("close", async (ws: Mysocket) => {
+    const message: LeaveType = {
+      type: "user-left",
+      payload: {
+        userId: ws.userId!,
+      },
+    };
+
+    if (!ws.spaceId) {
+      return;
+    } else {
+      const space_users = spaces.get(ws.spaceId);
+      const newUsers = space_users?.filter((u) => u.userId !== ws.userId);
+      spaces.delete(ws.userId!);
+      spaces.get(ws.spaceId)?.forEach((client) => {
+        client.send(JSON.stringify(message));
+      });
+    }
+  });
+
+  ws.on("close", async () => {
+    handleClose(ws);
   });
 });

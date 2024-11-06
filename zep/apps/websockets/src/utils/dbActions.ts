@@ -23,7 +23,6 @@ export const getSpaceAndUser = async (payload: JoinPayload): Promise<any> => {
       }
       return decoded;
     });
-    // const user = jwt.verify(payload.token, "pawan1");
 
     return { space, user };
   } catch (error) {

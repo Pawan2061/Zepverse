@@ -96,14 +96,6 @@ export const createSpace = async (
         },
       });
 
-      // Create the spaceElements
-      // const spaceElementsData = map.mapElements.map((m) => ({
-      //   elementId: m.elementId!,
-      //   spaceId: space.id,
-      //   x: m.x!,
-      //   y: m.y!,
-      // }));
-
       console.log(map.mapElements);
 
       await prisma.spaceElements.createMany({

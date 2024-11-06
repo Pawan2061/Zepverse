@@ -64,13 +64,13 @@ export type UserJoinMessage = {
   payload: { x: number; y: number; userId: string };
 };
 
-export interface WebsocketUser extends WebSocket {
-  id: string;
-  username: string;
-  password: string;
-  x: number;
-  y: number;
-}
+// export interface WebsocketUser extends WebSocket {
+//   id: string;
+//   username: string;
+//   password: string;
+//   x: number;
+//   y: number;
+// }
 
 export interface UsersSocket {
   id: string;
@@ -79,4 +79,41 @@ export interface UsersSocket {
   x: number;
   y: number;
   ws: WebSocket;
+}
+
+export interface Mysocket extends WebSocket {
+  x?: number;
+  y?: number;
+  userId?: string;
+  spaceId: string;
+}
+
+export interface MovePayload {
+  x: number;
+  y: number;
+  userId: string;
+}
+
+export interface MovementRejected {
+  type: string;
+  payload: {
+    x: number;
+    y: number;
+  };
+}
+
+export interface MovementDone {
+  type: string;
+  payload: {
+    x: number;
+    y: number;
+    userId: string;
+  };
+}
+
+export interface LeaveType {
+  type: string;
+  payload: {
+    userId: string;
+  };
 }
