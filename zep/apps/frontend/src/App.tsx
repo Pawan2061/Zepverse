@@ -1,7 +1,9 @@
+import CanvasGame from "./components/Arena";
+
 function App() {
   return (
     <>
-      <div className="text-5xl text-blue-700">hello world</div>
+      <CanvasGame />
     </>
   );
 }
