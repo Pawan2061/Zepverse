@@ -49,7 +49,7 @@ export const createMap = async (
         },
       },
     });
-    map.mapElements.map((m) => {
+    map.mapElements.map((m: any) => {
       console.log(m.x);
       console.log(m.elementId);
 

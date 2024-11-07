@@ -99,13 +99,13 @@ export const createSpace = async (
 
       await prisma.spaceElements.createMany({
         data: map.mapElements
-          .map((e) => ({
+          .map((e: any) => ({
             spaceId: space.id,
             elementId: e.elementId!,
             x: e.x!,
             y: e.y!,
           }))
-          .filter((item) => item.elementId !== null),
+          .filter((item: any) => item.elementId !== null),
       });
 
       return space;
@@ -191,7 +191,7 @@ export const getAllSpaces = async (req: any, res: Response): Promise<any> => {
       });
     }
     return res.status(200).json({
-      spaces: spaces.map((s) => ({
+      spaces: spaces.map((s: any) => ({
         id: s.id,
         name: s.name,
         thumbnail: s.thumbnail,
@@ -241,7 +241,7 @@ export const getSpace = async (req: Request, res: Response): Promise<any> => {
 
     return res.status(200).json({
       dimensions: `${space.width}x${space.height}`,
-      elements: space.elements.map((m) => ({
+      elements: space.elements.map((m: any) => ({
         id: m.id,
         x: m.x,
         y: m.y,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 
 const CanvasGame = () => {
   const clientRef = useRef<WebSocket | null>(null);

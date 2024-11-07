@@ -7,19 +7,18 @@ import {
   Mysocket,
   UsersSocket,
 } from "./interface";
-import express from "express";
 import { JoinPayload, Message, UserJoinMessage } from "./interface";
 import { getSpaceAndUser } from "./utils/dbActions";
 
 let spaces = new Map<string, Mysocket[]>();
 
-const app = express();
-
-const httpServer = app.listen(8080);
-
 const wss = new WebSocketServer({
-  server: httpServer,
+  port: 8080,
 });
+
+// const wss = new WebSocketServer({
+//   server: httpServer,
+// });
 
 async function handleJoin(data: JoinPayload, ws: Mysocket) {
   const { user, space } = await getSpaceAndUser(data);
